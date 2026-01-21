@@ -1,0 +1,13 @@
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+
+# Node / tooling (falls später genutzt)
+node_modules/
+dist/
+build/
+
+# Logs
+*.log

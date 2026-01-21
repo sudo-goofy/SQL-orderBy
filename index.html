@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Interaktiver Guide: SELECT, WHERE, ORDER BY & LIMIT</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF7; /* Warm neutral background */
+            color: #1F2937;
+        }
+        
+        /* Custom Scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F3F4F6; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D1D5DB; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9CA3AF; 
+        }
+
+        .sql-keyword {
+            color: #B45309; /* Terracotta/Orange for keywords */
+            font-weight: 700;
+        }
+        .sql-string {
+            color: #047857; /* Green for strings */
+        }
+        .sql-number {
+            color: #1D4ED8; /* Blue for numbers */
+        }
+
+        .nav-item.active {
+            background-color: #E5E7EB;
+            border-left: 4px solid #B45309;
+            font-weight: 600;
+        }
+
+        /* Table Styling */
+        .data-table th {
+            background-color: #F3F4F6;
+            color: #4B5563;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        .data-table td {
+            border-bottom: 1px solid #E5E7EB;
+        }
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Smooth transitions */
+        .transition-all {
+            transition-property: all;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 300ms;
+        }
+    </style>
+
+    <!-- Chosen Palette: Warm Neutrals (Background: #FDFBF7, Text: Dark Gray, Accents: Terracotta #B45309 and Sage Green #047857) -->
+    <!-- Application Structure Plan: 
+         - Layout: Dashboard style with a left sidebar navigation for the SQL concepts (Sections 1-5 + Playground).
+         - Main Content Area: Split into "Learning Context" (Left) and "Live Interactive Preview" (Right).
+         - Learning Context: Contains the explanatory text from the report, highlighting syntax and rules.
+         - Interactive Preview: Simulates a real database ('filme' table). Users can click buttons to apply filters/sorts/limits, instantly seeing the HTML table and a Chart.js visualization update.
+         - Why: This allows users to *see* the effect of abstract SQL commands immediately, reinforcing the logic of "Filter -> Sort -> Limit".
+    -->
+    <!-- Visualization & Content Choices:
+         - Data Representation: An HTML Table simulating the 'filme' database table. Goal: Show raw data structure.
+         - Visualization: Bar Chart (Chart.js) showing ratings of currently visible movies. Goal: Provide a visual aggregate of the result set.
+         - Interactions: Buttons for "Apply WHERE", "Apply ORDER BY", "Apply LIMIT". Goal: Simulate writing queries without typing code.
+         - Order Game: A drag/drop or click-sequence game in the Summary section. Goal: Test memory of the command order.
+         - Justification: Tables are essential for SQL. Charts show data distribution changes (e.g., filtering out low ratings).
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+</head>
+<body class="h-screen flex overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col hidden md:flex z-10 shadow-sm">
+        <div class="p-6 border-b border-gray-100">
+            <h1 class="text-xl font-bold text-gray-800">SQL</h1>
+            <p class="text-xs text-gray-500 mt-1">Interaktiver Guide</p>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1">
+                <li><button onclick="navigateTo('intro')" id="nav-intro" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">1. SELECT & FROM</button></li>
+                <li><button onclick="navigateTo('where')" id="nav-where" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">2. WHERE Filter</button></li>
+                <li><button onclick="navigateTo('orderby')" id="nav-orderby" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">3. ORDER BY (Einfach)</button></li>
+                <li><button onclick="navigateTo('orderby-multi')" id="nav-orderby-multi" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">4. ORDER BY (Komplex)</button></li>
+                <li><button onclick="navigateTo('limit')" id="nav-limit" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">5. LIMIT</button></li>
+                <li><button onclick="navigateTo('summary')" id="nav-summary" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">Zusammenfassung & Quiz</button></li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t border-gray-100">
+            <div class="text-xs text-gray-400">Basierend auf SQL Guide Report</div>
+        </div>
+    </aside>
+
+    <!-- Mobile Header -->
+    <div class="md:hidden fixed w-full bg-white border-b z-20 flex justify-between items-center p-4">
+        <h1 class="font-bold text-gray-800">SQL Guide</h1>
+        <button id="mobile-menu-btn" class="text-gray-600 focus:outline-none">
+            ☰ Menü
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden pt-14 md:pt-0">
+        
+        <!-- Interactive Workspace -->
+        <div class="flex flex-col lg:flex-row h-full">
+            
+            <!-- LEFT: Educational Context (Scrollable) -->
+            <div id="content-area" class="w-full lg:w-5/12 overflow-y-auto p-6 lg:p-10 bg-[#FDFBF7]">
+                <!-- Dynamic Content Injected Here -->
+            </div>
+
+            <!-- RIGHT: Live Simulation (Fixed/Scrollable depending on height) -->
+            <div class="w-full lg:w-7/12 bg-white border-l border-gray-200 flex flex-col h-full">
+                
+                <!-- Simulation Header -->
+                <div class="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                    <span class="font-semibold text-gray-700 text-sm">Live Datenbank Vorschau: <code class="bg-gray-200 px-2 py-1 rounded text-xs text-gray-600">tabelle: filme</code></span>
+                    <button onclick="resetData()" class="text-xs text-blue-600 hover:underline">Reset Simulation</button>
+                </div>
+
+                <!-- Controls & visualization -->
+                <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                    
+                    <!-- Query Builder Display -->
+                    <div class="bg-gray-900 rounded-lg p-4 font-mono text-sm text-gray-100 shadow-md">
+                        <div class="text-xs text-gray-500 mb-2 uppercase tracking-wide">Aktueller Query</div>
+                        <div id="query-display">SELECT * FROM filme;</div>
+                    </div>
+
+                    <!-- Interactive Controls Area -->
+                    <div id="controls-area" class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase mb-3">Interaktionen</h3>
+                        <div id="dynamic-controls" class="flex flex-wrap gap-2">
+                            <!-- Buttons injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Visualizations -->
+                    <div class="grid grid-cols-1 gap-6">
+                        
+                        <!-- Table -->
+                        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full data-table text-sm text-left">
+                                    <thead>
+                                        <tr id="table-header">
+                                            <!-- Headers injected JS -->
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-body">
+                                        <!-- Rows injected JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="p-2 text-xs text-gray-400 text-center bg-gray-50">Zeigt max. alle Ergebnisse (simuliert)</div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="fixed inset-0 bg-gray-800 bg-opacity-90 z-50 hidden flex flex-col justify-center items-center">
+        <button id="close-mobile-menu" class="absolute top-5 right-5 text-white text-2xl">&times;</button>
+        <nav class="space-y-4 text-center">
+            <button onclick="navigateTo('intro'); toggleMobileMenu()" class="block text-white text-xl p-2">1. SELECT & FROM</button>
+            <button onclick="navigateTo('where'); toggleMobileMenu()" class="block text-white text-xl p-2">2. WHERE</button>
+            <button onclick="navigateTo('orderby'); toggleMobileMenu()" class="block text-white text-xl p-2">3. ORDER BY (Einfach)</button>
+            <button onclick="navigateTo('orderby-multi'); toggleMobileMenu()" class="block text-white text-xl p-2">4. ORDER BY (Komplex)</button>
+            <button onclick="navigateTo('limit'); toggleMobileMenu()" class="block text-white text-xl p-2">5. LIMIT</button>
+            <button onclick="navigateTo('summary'); toggleMobileMenu()" class="block text-white text-xl p-2">Zusammenfassung</button>
+        </nav>
+    </div>
+
+    <script>
+        // --- Data Source ---
+        const rawData = [
+            { id: 1, titel: "Inception", jahr: 2010, genre: "Action", rating: 8.8 },
+            { id: 2, titel: "The Dark Knight", jahr: 2008, genre: "Action", rating: 9.0 },
+            { id: 3, titel: "Interstellar", jahr: 2014, genre: "Sci-Fi", rating: 8.6 },
+            { id: 4, titel: "Toy Story", jahr: 1995, genre: "Animation", rating: 8.3 },
+            { id: 5, titel: "Pulp Fiction", jahr: 1994, genre: "Crime", rating: 8.9 },
+            { id: 6, titel: "The Matrix", jahr: 1999, genre: "Action", rating: 8.7 },
+            { id: 7, titel: "Forrest Gump", jahr: 1994, genre: "Drama", rating: 8.8 },
+            { id: 8, titel: "Parasite", jahr: 2019, genre: "Thriller", rating: 8.6 },
+            { id: 9, titel: "Avengers: Endgame", jahr: 2019, genre: "Action", rating: 8.4 },
+            { id: 10, titel: "Lion King", jahr: 1994, genre: "Animation", rating: 8.5 },
+            { id: 11, titel: "Joker", jahr: 2019, genre: "Crime", rating: 8.4 },
+            { id: 12, titel: "Tenet", jahr: 2020, genre: "Action", rating: 7.3 }
+        ];
+
+        // --- State Management ---
+        let currentData = [...rawData];
+        let currentColumns = ['titel', 'jahr', 'genre', 'rating'];
+        let currentSection = 'intro';
+
+        // --- Content Definitions ---
+        const sections = {
+            'intro': {
+                title: "1. SELECT & FROM",
+                content: `
+                    <p class="text-gray-600 mb-4">
+                        Willkommen! Wir starten mit den absoluten Grundlagen. In SQL bestimmen zwei Befehle das Fundament jeder Abfrage:
+                    </p>
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-yellow-500 shadow-sm mb-6">
+                        <h3 class="font-bold text-gray-800 mb-2">Die Regel</h3>
+                        <p class="text-sm text-gray-600 mb-2"><strong>SELECT</strong> bestimmt das <em>WAS</em> (die Spalten).</p>
+                        <p class="text-sm text-gray-600"><strong>FROM</strong> bestimmt das <em>WO HER</em> (die Tabelle).</p>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        Im Simulator rechts siehst du unsere Tabelle <code>filme</code>. 
+                        Benutze die Buttons unten, um zu sehen, wie sich das Ergebnis ändert.
+                    </p>
+                `,
+                controls: [
+                    { label: "SELECT * (Alles)", action: () => setColumns(['titel', 'jahr', 'genre', 'rating']), query: "SELECT * FROM filme;" },
+                    { label: "SELECT titel, jahr", action: () => setColumns(['titel', 'jahr']), query: "SELECT titel, jahr FROM filme;" },
+                    { label: "SELECT titel, rating", action: () => setColumns(['titel', 'rating']), query: "SELECT titel, rating FROM filme;" }
+                ]
+            },
+            'where': {
+                title: "2. WHERE (Der Filter)",
+                content: `
+                    <p class="text-gray-600 mb-4">
+                        Jetzt wird es interessant. Meistens wollen wir nicht <em>alle</em> Filme sehen, sondern nur bestimmte. 
+                        Dafür nutzen wir <code>WHERE</code>.
+                    </p>
+                    <h3 class="font-bold text-gray-800 mt-6 mb-2">Syntax Highlights</h3>
+                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-2 mb-6">
+                        <li>Text braucht Anführungszeichen: <code>genre = 'Action'</code></li>
+                        <li>Zahlen stehen nackt: <code>jahr > 2000</code></li>
+                        <li>Operatoren: <code>=</code>, <code>!=</code>, <code>></code>, <code><</code></li>
+                    </ul>
+                    <p class="text-gray-600 mb-4">
+                        Teste die Filter rechts. Beobachte, wie Zeilen verschwinden, die nicht zur Bedingung passen.
+                    </p>
+                `,
+                controls: [
+                    { label: "Alle zeigen (Reset)", action: () => filterData(() => true), query: "SELECT * FROM filme;" },
+                    { label: "genre = 'Action'", action: () => filterData(row => row.genre === 'Action'), query: "SELECT * FROM filme WHERE genre = 'Action';" },
+                    { label: "jahr > 2010", action: () => filterData(row => row.jahr > 2010), query: "SELECT * FROM filme WHERE jahr > 2010;" },
+                    { label: "rating >= 8.8", action: () => filterData(row => row.rating >= 8.8), query: "SELECT * FROM filme WHERE rating >= 8.8;" },
+                    { label: "genre != 'Action'", action: () => filterData(row => row.genre !== 'Action'), query: "SELECT * FROM filme WHERE genre != 'Action';" }
+                ]
+            },
+            'orderby': {
+                title: "3. ORDER BY (Einfach)",
+                content: `
+                    <p class="text-gray-600 mb-4">
+                        Datenbanken speichern Daten oft chaotisch. Mit <code>ORDER BY</code> bringen wir Ordnung rein.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-gray-100 p-3 rounded">
+                            <span class="block font-bold text-gray-700">ASC</span>
+                            <span class="text-xs text-gray-500">Aufsteigend (Standard)<br>1 -> 9<br>A -> Z</span>
+                        </div>
+                        <div class="bg-gray-100 p-3 rounded">
+                            <span class="block font-bold text-gray-700">DESC</span>
+                            <span class="text-xs text-gray-500">Absteigend<br>9 -> 1<br>Z -> A</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        Dieser Befehl kommt <strong>immer nach</strong> <code>WHERE</code> (falls vorhanden).
+                    </p>
+                `,
+                controls: [
+                    { label: "Standard (Reset)", action: () => resetData(), query: "SELECT * FROM filme;" },
+                    { label: "ORDER BY rating DESC", action: () => sortData('rating', 'desc'), query: "SELECT * FROM filme ORDER BY rating DESC;" },
+                    { label: "ORDER BY rating ASC", action: () => sortData('rating', 'asc'), query: "SELECT * FROM filme ORDER BY rating ASC;" },
+                    { label: "ORDER BY jahr DESC", action: () => sortData('jahr', 'desc'), query: "SELECT * FROM filme ORDER BY jahr DESC;" },
+                    { label: "ORDER BY titel ASC", action: () => sortData('titel', 'asc'), query: "SELECT * FROM filme ORDER BY titel ASC;" }
+                ]
+            },
+            'orderby-multi': {
+                title: "4. ORDER BY (Mehrere Spalten)",
+                content: `
+                    <p class="text-gray-600 mb-4">
+                        Was passiert, wenn zwei Filme das gleiche Rating haben? Die Reihenfolge ist dann oft zufällig.
+                        Um das zu verhindern, können wir eine <strong>zweite Sortierregel</strong> hinzufügen.
+                    </p>
+                    <div class="bg-white border border-gray-200 p-4 rounded-lg mb-6 shadow-sm">
+                        <h4 class="font-bold text-gray-800 text-sm mb-2">Die Hierarchie</h4>
+                        <ol class="list-decimal list-inside text-sm text-gray-600 space-y-1">
+                            <li>Sortiere erst nach Spalte 1.</li>
+                            <li>Nur bei Gleichstand: Sortiere nach Spalte 2.</li>
+                        </ol>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        Probier es aus: Sortiere nach Genre. Innerhalb der Action-Filme sortieren wir dann nach Jahr.
+                    </p>
+                `,
+                controls: [
+                    { label: "Reset", action: () => resetData(), query: "SELECT * FROM filme;" },
+                    { 
+                        label: "Genre ASC, Jahr DESC", 
+                        action: () => sortDataMulti(['genre', 'asc'], ['jahr', 'desc']), 
+                        query: "SELECT * FROM filme ORDER BY genre ASC, jahr DESC;" 
+                    },
+                    { 
+                        label: "Rating DESC, Titel ASC", 
+                        action: () => sortDataMulti(['rating', 'desc'], ['titel', 'asc']), 
+                        query: "SELECT * FROM filme ORDER BY rating DESC, titel ASC;" 
+                    }
+                ]
+            },
+            'limit': {
+                title: "5. LIMIT",
+                content: `
+                    <p class="text-gray-600 mb-4">
+                        Manchmal wollen wir nur einen kleinen Ausschnitt, zum Beispiel für eine "Top 3"-Liste.
+                        Dafür ist <code>LIMIT</code> da.
+                    </p>
+                    <p class="text-gray-600 mb-4">
+                        <strong>Wichtig:</strong> LIMIT steht fast immer ganz am <strong>Ende</strong> des SQL-Befehls.
+                        Es schneidet die Tabelle einfach nach X Zeilen ab.
+                    </p>
+                    <p class="text-sm text-gray-500 italic mb-4">
+                        Hinweis: Ohne ORDER BY liefert LIMIT zufällige Zeilen. Kombiniere sie für sinnvolle Ergebnisse!
+                    </p>
+                `,
+                controls: [
+                    { label: "LIMIT 3 (Zufällig)", action: () => limitData(3), query: "SELECT * FROM filme LIMIT 3;" },
+                    { label: "LIMIT 5", action: () => limitData(5), query: "SELECT * FROM filme LIMIT 5;" },
+                    { 
+                        label: "Top 3 (Order + Limit)", 
+                        action: () => { sortData('rating', 'desc'); limitData(3); }, 
+                        query: "SELECT * FROM filme ORDER BY rating DESC LIMIT 3;" 
+                    }
+                ]
+            },
+            'summary': {
+                title: "Zusammenfassung & Quiz",
+                content: `
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Die Goldene Reihenfolge</h3>
+                    <p class="text-gray-600 mb-6">
+                        SQL verzeiht keine Fehler in der Reihenfolge. Du musst dich strikt an diesen Aufbau halten.
+                    </p>
+                    
+                    <div id="order-game-container" class="bg-white p-6 rounded-lg border border-gray-200 shadow-md">
+                        <h4 class="font-bold text-gray-700 mb-3">Quiz: Bringe die Befehle in die richtige Reihenfolge!</h4>
+                        <p class="text-xs text-gray-500 mb-4">Klicke die Buttons in der korrekten logischen Abfolge an.</p>
+                        
+                        <div id="game-buttons" class="flex flex-wrap gap-2 mb-4">
+                            <button onclick="gameClick('WHERE')" class="game-btn px-4 py-2 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition">WHERE</button>
+                            <button onclick="gameClick('LIMIT')" class="game-btn px-4 py-2 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition">LIMIT</button>
+                            <button onclick="gameClick('SELECT')" class="game-btn px-4 py-2 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition">SELECT</button>
+                            <button onclick="gameClick('ORDER BY')" class="game-btn px-4 py-2 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition">ORDER BY</button>
+                            <button onclick="gameClick('FROM')" class="game-btn px-4 py-2 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition">FROM</button>
+                        </div>
+
+                        <div id="game-result" class="min-h-[40px] p-2 bg-gray-50 rounded border border-gray-100 flex items-center gap-2 font-mono text-sm">
+                            <span class="text-gray-400">Dein Query:</span>
+                            <span id="game-output" class="font-bold text-gray-800"></span>
+                        </div>
+                        <div id="game-message" class="mt-2 text-sm font-bold min-h-[20px]"></div>
+                        <button onclick="resetGame()" class="mt-4 text-xs text-gray-500 underline">Reset Quiz</button>
+                    </div>
+                `,
+                controls: [
+                    { label: "Alle Daten zurücksetzen", action: () => resetData(), query: "SELECT * FROM filme;" }
+                ]
+            }
+        };
+
+        // --- Core Functions ---
+
+        function init() {
+            navigateTo('intro');
+            
+            // Mobile Menu Listeners
+            document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
+            document.getElementById('close-mobile-menu').addEventListener('click', toggleMobileMenu);
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        function navigateTo(sectionId) {
+            currentSection = sectionId;
+            
+            // Update Nav Styles
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const activeNav = document.getElementById(`nav-${sectionId}`);
+            if(activeNav) activeNav.classList.add('active');
+
+            // Update Content Area
+            const contentArea = document.getElementById('content-area');
+            const data = sections[sectionId];
+            
+            contentArea.innerHTML = `
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">${data.title}</h2>
+                <div class="prose max-w-none">
+                    ${data.content}
+                </div>
+            `;
+
+            // Update Controls
+            const controlsArea = document.getElementById('dynamic-controls');
+            controlsArea.innerHTML = '';
+            data.controls.forEach(ctrl => {
+                const btn = document.createElement('button');
+                btn.className = "px-3 py-2 bg-white border border-gray-300 text-gray-700 text-xs rounded hover:bg-gray-50 hover:border-gray-400 transition shadow-sm font-medium";
+                btn.innerText = ctrl.label;
+                btn.onclick = () => {
+                    // Update Query Display
+                    document.getElementById('query-display').innerText = ctrl.query;
+                    // Execute Action
+                    ctrl.action();
+                };
+                controlsArea.appendChild(btn);
+            });
+
+            // Reset simulation data on section change to avoid confusion (except limit which builds on sort)
+            // But we might want persistence. Let's keep persistence but if it's confusing, user can reset.
+            // Actually, resetting per section is cleaner for tutorials.
+            resetData();
+            // Trigger the first control action as default visual? No, let user explore.
+            document.getElementById('query-display').innerText = "Bereit...";
+            
+            if (sectionId === 'summary') {
+                resetGame();
+            }
+        }
+
+        function renderTable() {
+            const thead = document.getElementById('table-header');
+            const tbody = document.getElementById('table-body');
+            
+            // Clear
+            thead.innerHTML = '';
+            tbody.innerHTML = '';
+
+            // Headers
+            currentColumns.forEach(col => {
+                const th = document.createElement('th');
+                th.className = "px-4 py-3";
+                th.innerText = col;
+                thead.appendChild(th);
+            });
+
+            // Body
+            currentData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition-colors";
+                currentColumns.forEach(col => {
+                    const td = document.createElement('td');
+                    td.className = "px-4 py-3 text-gray-600";
+                    td.innerText = row[col];
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- SQL Operations Logic ---
+
+        function resetData() {
+            currentData = [...rawData];
+            currentColumns = ['titel', 'jahr', 'genre', 'rating'];
+            renderTable();
+            document.getElementById('query-display').innerText = "SELECT * FROM filme;";
+        }
+
+        function setColumns(cols) {
+            // Need to ensure we still use rawData but only display cols
+            currentColumns = cols;
+            // Ensure we are working with full rows, renderTable handles the column picking
+            renderTable();
+        }
+
+        function filterData(predicate) {
+            currentData = rawData.filter(predicate);
+            renderTable();
+        }
+
+        function sortData(key, direction) {
+            // Clone currentData to avoid mutating raw if we haven't filtered
+            // Note: If we filtered, currentData is already a subset.
+            // If we haven't filtered, currentData might be a ref to rawData? No, we used spread.
+            
+            const sorted = [...currentData].sort((a, b) => {
+                if (a[key] < b[key]) return direction === 'asc' ? -1 : 1;
+                if (a[key] > b[key]) return direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+            currentData = sorted;
+            renderTable();
+        }
+
+        function sortDataMulti(rule1, rule2) {
+            // rule format: ['key', 'direction']
+            const sorted = [...currentData].sort((a, b) => {
+                // Rule 1 comparison
+                if (a[rule1[0]] < b[rule1[0]]) return rule1[1] === 'asc' ? -1 : 1;
+                if (a[rule1[0]] > b[rule1[0]]) return rule1[1] === 'asc' ? 1 : -1;
+                
+                // Rule 2 comparison (only if rule 1 is equal)
+                if (a[rule2[0]] < b[rule2[0]]) return rule2[1] === 'asc' ? -1 : 1;
+                if (a[rule2[0]] > b[rule2[0]]) return rule2[1] === 'asc' ? 1 : -1;
+                
+                return 0;
+            });
+            currentData = sorted;
+            renderTable();
+        }
+
+        function limitData(n) {
+            // Limits whatever is currently in currentData
+            currentData = currentData.slice(0, n);
+            renderTable();
+        }
+
+        // --- Game Logic ---
+        let gameSequence = [];
+        const correctSequence = ['SELECT', 'FROM', 'WHERE', 'ORDER BY', 'LIMIT'];
+
+        function gameClick(keyword) {
+            if (gameSequence.includes(keyword)) return;
+            
+            gameSequence.push(keyword);
+            
+            const output = document.getElementById('game-output');
+            output.innerText = gameSequence.join('  >>  ');
+
+            checkGame();
+        }
+
+        function checkGame() {
+            const msg = document.getElementById('game-message');
+            
+            // Check validity so far
+            for(let i=0; i<gameSequence.length; i++) {
+                if(gameSequence[i] !== correctSequence[i]) {
+                    msg.innerText = "❌ Falsche Reihenfolge! Reset...";
+                    msg.className = "mt-2 text-sm font-bold text-red-600";
+                    setTimeout(resetGame, 1000);
+                    return;
+                }
+            }
+
+            if(gameSequence.length === correctSequence.length) {
+                msg.innerText = "✅ Perfekt! Das ist die korrekte SQL Syntax.";
+                msg.className = "mt-2 text-sm font-bold text-green-600";
+            } else {
+                msg.innerText = "Gut so... weiter...";
+                msg.className = "mt-2 text-sm font-bold text-blue-600";
+            }
+        }
+
+        function resetGame() {
+            gameSequence = [];
+            document.getElementById('game-output').innerText = "";
+            document.getElementById('game-message').innerText = "";
+        }
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>
