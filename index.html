@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQL Interaktiver Guide: SELECT, WHERE, ORDER BY & LIMIT</title>
+    <title>SQL Guide</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font -->
@@ -75,7 +75,7 @@
 
     <!-- Chosen Palette: Warm Neutrals (Background: #FDFBF7, Text: Dark Gray, Accents: Terracotta #B45309 and Sage Green #047857) -->
     <!-- Application Structure Plan: 
-         - Layout: Dashboard style with a left sidebar navigation for the SQL concepts (Sections 1-5 + Playground).
+         - Layout: Dashboard style with a left sidebar navigation for the SQL concepts (Sections 1-8 + Playground).
          - Main Content Area: Split into "Learning Context" (Left) and "Live Interactive Preview" (Right).
          - Learning Context: Contains the explanatory text from the report, highlighting syntax and rules.
          - Interactive Preview: Simulates a real database ('filme' table). Users can click buttons to apply filters/sorts/limits, instantly seeing the HTML table and a Chart.js visualization update.
@@ -105,7 +105,10 @@
                 <li><button onclick="navigateTo('where')" id="nav-where" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">2. WHERE Filter</button></li>
                 <li><button onclick="navigateTo('orderby')" id="nav-orderby" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">3. ORDER BY (Einfach)</button></li>
                 <li><button onclick="navigateTo('orderby-multi')" id="nav-orderby-multi" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">4. ORDER BY (Komplex)</button></li>
-                <li><button onclick="navigateTo('limit')" id="nav-limit" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">5. LIMIT</button></li>
+                <li><button onclick="navigateTo('and')" id="nav-and" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">5. AND</button></li>
+                <li><button onclick="navigateTo('limit')" id="nav-limit" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">6. LIMIT</button></li>
+                <li><button onclick="navigateTo('distinct')" id="nav-distinct" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">7. DISTINCT</button></li>
+                <li><button onclick="navigateTo('datetime')" id="nav-datetime" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">8. DATETIME</button></li>
                 <li><button onclick="navigateTo('summary')" id="nav-summary" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">Zusammenfassung & Quiz</button></li>
             </ul>
         </nav>
@@ -193,7 +196,10 @@
             <button onclick="navigateTo('where'); toggleMobileMenu()" class="block text-white text-xl p-2">2. WHERE</button>
             <button onclick="navigateTo('orderby'); toggleMobileMenu()" class="block text-white text-xl p-2">3. ORDER BY (Einfach)</button>
             <button onclick="navigateTo('orderby-multi'); toggleMobileMenu()" class="block text-white text-xl p-2">4. ORDER BY (Komplex)</button>
-            <button onclick="navigateTo('limit'); toggleMobileMenu()" class="block text-white text-xl p-2">5. LIMIT</button>
+            <button onclick="navigateTo('and'); toggleMobileMenu()" class="block text-white text-xl p-2">5. AND</button>
+            <button onclick="navigateTo('limit'); toggleMobileMenu()" class="block text-white text-xl p-2">6. LIMIT</button>
+            <button onclick="navigateTo('distinct'); toggleMobileMenu()" class="block text-white text-xl p-2">7. DISTINCT</button>
+            <button onclick="navigateTo('datetime'); toggleMobileMenu()" class="block text-white text-xl p-2">8. DATETIME</button>
             <button onclick="navigateTo('summary'); toggleMobileMenu()" class="block text-white text-xl p-2">Zusammenfassung</button>
         </nav>
     </div>
@@ -201,18 +207,18 @@
     <script>
         // --- Data Source ---
         const rawData = [
-            { id: 1, titel: "Inception", jahr: 2010, genre: "Action", rating: 8.8 },
-            { id: 2, titel: "The Dark Knight", jahr: 2008, genre: "Action", rating: 9.0 },
-            { id: 3, titel: "Interstellar", jahr: 2014, genre: "Sci-Fi", rating: 8.6 },
-            { id: 4, titel: "Toy Story", jahr: 1995, genre: "Animation", rating: 8.3 },
-            { id: 5, titel: "Pulp Fiction", jahr: 1994, genre: "Crime", rating: 8.9 },
-            { id: 6, titel: "The Matrix", jahr: 1999, genre: "Action", rating: 8.7 },
-            { id: 7, titel: "Forrest Gump", jahr: 1994, genre: "Drama", rating: 8.8 },
-            { id: 8, titel: "Parasite", jahr: 2019, genre: "Thriller", rating: 8.6 },
-            { id: 9, titel: "Avengers: Endgame", jahr: 2019, genre: "Action", rating: 8.4 },
-            { id: 10, titel: "Lion King", jahr: 1994, genre: "Animation", rating: 8.5 },
-            { id: 11, titel: "Joker", jahr: 2019, genre: "Crime", rating: 8.4 },
-            { id: 12, titel: "Tenet", jahr: 2020, genre: "Action", rating: 7.3 }
+            { id: 1, titel: "Inception", jahr: 2010, genre: "Action", rating: 8.8, eingetragen_am: "2024-09-01T10:15:00" },
+            { id: 2, titel: "The Dark Knight", jahr: 2008, genre: "Action", rating: 9.0, eingetragen_am: "2024-09-01T10:20:00" },
+            { id: 3, titel: "Interstellar", jahr: 2014, genre: "Sci-Fi", rating: 8.6, eingetragen_am: "2024-09-02T08:00:00" },
+            { id: 4, titel: "Toy Story", jahr: 1995, genre: "Animation", rating: 8.3, eingetragen_am: "2023-03-15T12:30:00" },
+            { id: 5, titel: "Pulp Fiction", jahr: 1994, genre: "Crime", rating: 8.9, eingetragen_am: "2022-11-10T09:45:00" },
+            { id: 6, titel: "The Matrix", jahr: 1999, genre: "Action", rating: 8.7, eingetragen_am: "2021-06-05T14:05:00" },
+            { id: 7, titel: "Forrest Gump", jahr: 1994, genre: "Drama", rating: 8.8, eingetragen_am: "2019-05-20T11:00:00" },
+            { id: 8, titel: "Parasite", jahr: 2019, genre: "Thriller", rating: 8.6, eingetragen_am: "2019-10-01T18:15:00" },
+            { id: 9, titel: "Avengers: Endgame", jahr: 2019, genre: "Action", rating: 8.4, eingetragen_am: "2020-02-14T16:45:00" },
+            { id: 10, titel: "Lion King", jahr: 1994, genre: "Animation", rating: 8.5, eingetragen_am: "2018-12-31T23:50:00" },
+            { id: 11, titel: "Joker", jahr: 2019, genre: "Crime", rating: 8.4, eingetragen_am: "2020-01-02T09:10:00" },
+            { id: 12, titel: "Tenet", jahr: 2020, genre: "Action", rating: 7.3, eingetragen_am: "2020-09-15T13:25:00" }
         ];
 
         // --- State Management ---
@@ -329,8 +335,32 @@
                     }
                 ]
             },
+            'and': {
+                title: "5. AND (Mehrere Bedingungen)",
+                content: `
+                    <p class="text-gray-600 mb-4">
+                        Mit <code>WHERE</code> filterst du nach <em>einer</em> Bedingung. Oft brauchst du aber mehrere Kriterien.
+                        Genau dafür gibt es <code>AND</code>.
+                    </p>
+                    <div class="bg-white border border-gray-200 p-4 rounded-lg mb-6 shadow-sm">
+                        <h4 class="font-bold text-gray-800 text-sm mb-2">Syntax</h4>
+                        <p class="text-sm text-gray-600">
+                            <code>SELECT * FROM filme WHERE genre = 'Action' AND jahr &gt; 2010;</code>
+                        </p>
+                    </div>
+                    <p class="text-sm text-gray-500 italic mb-4">
+                        Merke: <code>AND</code> verengt das Ergebnis (beide Bedingungen müssen wahr sein).
+                    </p>
+                `,
+                controls: [
+                    { label: "Reset", action: () => filterData(() => true), query: "SELECT * FROM filme;" },
+                    { label: "Action UND jahr > 2010", action: () => filterData(row => row.genre === 'Action' && row.jahr > 2010), query: "SELECT * FROM filme WHERE genre = 'Action' AND jahr > 2010;" },
+                    { label: "Crime UND rating >= 8.5", action: () => filterData(row => row.genre === 'Crime' && row.rating >= 8.5), query: "SELECT * FROM filme WHERE genre = 'Crime' AND rating >= 8.5;" },
+                    { label: "Jahr >= 2019 UND rating >= 8.4", action: () => filterData(row => row.jahr >= 2019 && row.rating >= 8.4), query: "SELECT * FROM filme WHERE jahr >= 2019 AND rating >= 8.4;" }
+                ]
+            },
             'limit': {
-                title: "5. LIMIT",
+                title: "6. LIMIT",
                 content: `
                     <p class="text-gray-600 mb-4">
                         Manchmal wollen wir nur einen kleinen Ausschnitt, zum Beispiel für eine "Top 3"-Liste.
@@ -354,6 +384,57 @@
                     }
                 ]
             },
+            'distinct': {
+                title: "7. DISTINCT",
+                content: `
+                    <p class="text-gray-600 mb-4">
+                        Manchmal enthält eine Tabelle mehrere Zeilen mit dem <em>gleichen</em> Wert in einer Spalte.
+                        Wenn du diese Werte nur <strong>einmal</strong> sehen willst, nutzt du <code>DISTINCT</code>.
+                    </p>
+                    <div class="bg-white border border-gray-200 p-4 rounded-lg mb-6 shadow-sm">
+                        <h4 class="font-bold text-gray-800 text-sm mb-2">Merke</h4>
+                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                            <li><code>SELECT DISTINCT spalte FROM tabelle;</code> zeigt jeden Wert nur einmal.</li>
+                            <li>Mit mehreren Spalten gilt DISTINCT für die <strong>Kombination</strong> der Spalten.</li>
+                        </ul>
+                    </div>
+                    <p class="text-sm text-gray-500 italic mb-4">
+                        Tipp: DISTINCT wird direkt nach <code>SELECT</code> geschrieben.
+                    </p>
+                `,
+                controls: [
+                    { label: "DISTINCT genre", action: () => distinctData(['genre']), query: "SELECT DISTINCT genre FROM filme;" },
+                    { label: "DISTINCT jahr", action: () => distinctData(['jahr']), query: "SELECT DISTINCT jahr FROM filme;" },
+                    { label: "DISTINCT genre, jahr", action: () => distinctData(['genre', 'jahr']), query: "SELECT DISTINCT genre, jahr FROM filme;" },
+                    { label: "DISTINCT genre (ORDER BY)", action: () => { distinctData(['genre']); sortData('genre', 'asc'); }, query: "SELECT DISTINCT genre FROM filme ORDER BY genre ASC;" }
+                ]
+            },
+            'datetime': {
+                title: "8. DATETIME",
+                content: `
+                    <p class="text-gray-600 mb-4">
+                        In SQL speichern wir Datum+Uhrzeit häufig als <code>DATETIME</code> (z.B. <code>2020-09-15 13:25:00</code>).
+                        Damit kannst du z.B. Einträge nach einem bestimmten Jahr filtern.
+                    </p>
+                    <div class="bg-white border border-gray-200 p-4 rounded-lg mb-6 shadow-sm">
+                        <h4 class="font-bold text-gray-800 text-sm mb-2">Typische Filter</h4>
+                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                            <li><code>WHERE YEAR(eingetragen_am) = 2019</code></li>
+                            <li><code>WHERE eingetragen_am &gt;= '2019-01-01' AND eingetragen_am &lt; '2020-01-01'</code></li>
+                        </ul>
+                    </div>
+                    <p class="text-sm text-gray-500 italic mb-4">
+                        Hinweis: Ein Bereichs-Filter (von/bis) ist oft schneller als <code>YEAR(...)</code>, weil Indizes besser genutzt werden.
+                    </p>
+                `,
+                controls: [
+                    { label: "Spalten anzeigen", action: () => setColumns(['titel', 'eingetragen_am']), query: "SELECT titel, eingetragen_am FROM filme;" },
+                    { label: "Einträge aus 2019", action: () => { setColumns(['titel', 'eingetragen_am']); filterData(row => new Date(row.eingetragen_am).getFullYear() === 2019); }, query: "SELECT titel, eingetragen_am FROM filme WHERE YEAR(eingetragen_am) = 2019;" },
+                    { label: "Einträge aus 2020", action: () => { setColumns(['titel', 'eingetragen_am']); filterData(row => new Date(row.eingetragen_am).getFullYear() === 2020); }, query: "SELECT titel, eingetragen_am FROM filme WHERE YEAR(eingetragen_am) = 2020;" },
+                    { label: "Zwischen 2019 und 2020", action: () => { setColumns(['titel', 'eingetragen_am']); filterData(row => row.eingetragen_am >= '2019-01-01T00:00:00' && row.eingetragen_am < '2020-01-01T00:00:00'); }, query: "SELECT titel, eingetragen_am FROM filme WHERE eingetragen_am >= '2019-01-01' AND eingetragen_am < '2020-01-01';" },
+                    { label: "Neueste zuerst", action: () => { setColumns(['titel', 'eingetragen_am']); sortData('eingetragen_am', 'desc'); }, query: "SELECT titel, eingetragen_am FROM filme ORDER BY eingetragen_am DESC;" }
+                ]
+            },
             'summary': {
                 title: "Zusammenfassung & Quiz",
                 content: `
@@ -361,6 +442,14 @@
                     <p class="text-gray-600 mb-6">
                         SQL verzeiht keine Fehler in der Reihenfolge. Du musst dich strikt an diesen Aufbau halten.
                     </p>
+
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-yellow-500 shadow-sm mb-6">
+                        <h4 class="font-bold text-gray-800 mb-1">Hinweis zu AND/OR</h4>
+                        <p class="text-sm text-gray-600">
+                            <code>AND</code> (und <code>OR</code>) gehört in die <code>WHERE</code>-Bedingung.
+                            Es ist kein eigener "Block" wie <code>ORDER BY</code> oder <code>LIMIT</code>.
+                        </p>
+                    </div>
                     
                     <div id="order-game-container" class="bg-white p-6 rounded-lg border border-gray-200 shadow-md">
                         <h4 class="font-bold text-gray-700 mb-3">Quiz: Bringe die Befehle in die richtige Reihenfolge!</h4>
@@ -370,6 +459,7 @@
                             <button onclick="gameClick('WHERE')" class="game-btn px-4 py-2 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition">WHERE</button>
                             <button onclick="gameClick('LIMIT')" class="game-btn px-4 py-2 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition">LIMIT</button>
                             <button onclick="gameClick('SELECT')" class="game-btn px-4 py-2 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition">SELECT</button>
+                            <button onclick="gameClick('DISTINCT')" class="game-btn px-4 py-2 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition">DISTINCT</button>
                             <button onclick="gameClick('ORDER BY')" class="game-btn px-4 py-2 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition">ORDER BY</button>
                             <button onclick="gameClick('FROM')" class="game-btn px-4 py-2 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition">FROM</button>
                         </div>
@@ -444,6 +534,15 @@
             resetData();
             // Trigger the first control action as default visual? No, let user explore.
             document.getElementById('query-display').innerText = "Bereit...";
+
+            // Some sections benefit from an immediate, visible default state.
+            if (sectionId === 'datetime') {
+                const firstCtrl = sections[sectionId]?.controls?.[0];
+                if (firstCtrl) {
+                    document.getElementById('query-display').innerText = firstCtrl.query;
+                    firstCtrl.action();
+                }
+            }
             
             if (sectionId === 'summary') {
                 resetGame();
@@ -538,9 +637,28 @@
             renderTable();
         }
 
+        function distinctData(cols) {
+            const seen = new Set();
+            const distinctRows = [];
+
+            for (const row of currentData) {
+                const key = cols.map(c => String(row[c])).join('\u0000');
+                if (seen.has(key)) continue;
+                seen.add(key);
+
+                const out = {};
+                cols.forEach(c => { out[c] = row[c]; });
+                distinctRows.push(out);
+            }
+
+            currentColumns = cols;
+            currentData = distinctRows;
+            renderTable();
+        }
+
         // --- Game Logic ---
         let gameSequence = [];
-        const correctSequence = ['SELECT', 'FROM', 'WHERE', 'ORDER BY', 'LIMIT'];
+        const correctSequence = ['SELECT', 'DISTINCT', 'FROM', 'WHERE', 'ORDER BY', 'LIMIT'];
 
         function gameClick(keyword) {
             if (gameSequence.includes(keyword)) return;
