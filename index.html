@@ -31,7 +31,7 @@
             color: var(--color-primary);
         }
         
-        h1, h2, h3, h4, h5, h6, .font-serif-header {
+        h1, h2, h3, h4, h5, h6 {
             font-family: 'Roboto Slab', serif;
         }
         
@@ -74,10 +74,7 @@
             border: 1px solid #cbd5e1;
         }
 
-        /* 
-           FORCE overrides for tokens inside inline code blocks (to fight the Dark Theme colors).
-           We want dark readable colors on the light inline background. 
-        */
+        /* Token color overrides for inline code (light background) */
         :not(pre) > code[class*="language-"] .token.comment,
         :not(pre) > code[class*="language-"] .token.prolog,
         :not(pre) > code[class*="language-"] .token.doctype,
@@ -133,11 +130,6 @@
             color: #ea580c; /* Orange 600 */
         }
         
-        /* Custom UI Classes based on Palette */
-        .u-text-primary { color: var(--color-primary); }
-        .u-bg-primary { background-color: var(--color-primary); }
-        .u-border-primary { border-color: var(--color-primary); }
-        
         .nav-item {
             color: #64748b;
         }
@@ -152,24 +144,6 @@
             font-weight: 800;
         }
 
-        .btn-primary {
-            background-color: white;
-            border: 2px solid var(--color-primary);
-            color: var(--color-primary);
-        }
-        .btn-primary:hover {
-            background-color: var(--color-secondary);
-            color: var(--color-primary);
-            border-color: var(--color-primary);
-            box-shadow: 2px 2px 0px var(--color-primary); /* Brutalist shadow */
-        }
-        
-        /* Note box styling */
-        .note-box {
-            background-color: #fffbeb; 
-            border-left: 4px solid var(--color-secondary);
-        }
-        
         a {
             color: var(--color-primary);
             text-decoration: underline;
@@ -181,6 +155,34 @@
             background-color: var(--color-secondary);
             color: var(--color-primary);
             text-decoration: none;
+        }
+
+        /* Control Buttons (Brutalist style) */
+        .control-btn {
+            position: relative;
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--color-primary);
+            color: var(--color-primary);
+            background-color: white;
+            font-size: 0.875rem;
+            border-radius: 0.25rem;
+            font-weight: 700;
+            box-shadow: 3px 3px 0 0 var(--color-primary);
+            transition: all 200ms ease;
+            cursor: pointer;
+        }
+        .control-btn:hover {
+            background-color: var(--color-secondary);
+        }
+        .control-btn:active {
+            box-shadow: none;
+            transform: translate(3px, 3px);
+        }
+        .control-btn.is-active {
+            background-color: var(--color-primary);
+            color: white;
+            box-shadow: none;
+            transform: translate(3px, 3px);
         }
 
         /* Table Styling */
@@ -207,28 +209,13 @@
         }
     </style>
 
-    <!-- Chosen Palette: Warm Neutrals (Background: #FDFBF7, Text: Dark Gray, Accents: Terracotta #B45309 and Sage Green #047857) -->
-    <!-- Application Structure Plan: 
-         - Layout: Dashboard style with a left sidebar navigation for the SQL concepts (Sections 1-8 + Playground).
-         - Main Content Area: Split into "Learning Context" (Left) and "Live Interactive Preview" (Right).
-         - Learning Context: Contains the explanatory text from the report, highlighting syntax and rules.
-         - Interactive Preview: Simulates a real database ('filme' table). Users can click buttons to apply filters/sorts/limits, instantly seeing the HTML table and a Chart.js visualization update.
-         - Why: This allows users to *see* the effect of abstract SQL commands immediately, reinforcing the logic of "Filter -> Sort -> Limit".
-    -->
-    <!-- Visualization & Content Choices:
-         - Data Representation: An HTML Table simulating the 'filme' database table. Goal: Show raw data structure.
-         - Visualization: Bar Chart (Chart.js) showing ratings of currently visible movies. Goal: Provide a visual aggregate of the result set.
-         - Interactions: Buttons for "Apply WHERE", "Apply ORDER BY", "Apply LIMIT". Goal: Simulate writing queries without typing code.
-         - Order Game: A drag/drop or click-sequence game in the Summary section. Goal: Test memory of the command order.
-         - Justification: Tables are essential for SQL. Charts show data distribution changes (e.g., filtering out low ratings).
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
 
 </head>
 <body class="h-screen flex overflow-hidden">
 
     <!-- Sidebar Navigation -->
-    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col hidden md:flex z-10 shadow-sm relative">
+    <aside aria-label="Kapitelnavigation" class="w-64 bg-white border-r border-gray-200 flex flex-col hidden md:flex z-10 shadow-sm relative">
         <div class="p-6 border-b border-gray-100">
             <h1 class="text-xl font-bold text-gray-800" style="font-family: 'Roboto Slab', serif;">SQL</h1>
             <p class="text-xs text-gray-500 mt-1">Interaktiver Guide</p>
@@ -255,7 +242,7 @@
     <!-- Mobile Header -->
     <div class="md:hidden fixed w-full bg-white border-b z-20 flex justify-between items-center p-4">
         <h1 class="font-bold text-gray-800">SQL Guide</h1>
-        <button id="mobile-menu-btn" class="text-gray-600 focus:outline-none">
+        <button id="mobile-menu-btn" aria-expanded="false" aria-controls="mobile-menu" aria-label="Navigationsmenü öffnen" class="text-gray-600 focus:outline-none">
             ☰ Menü
         </button>
     </div>
@@ -265,12 +252,12 @@
         
         <!-- Mobile Tab Bar (Bottom Navigation) -->
         <div class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 z-30 flex justify-around items-center h-16 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-            <button onclick="switchMobileTab('content')" id="tab-content" class="flex-1 flex flex-col items-center justify-center h-full text-[var(--color-primary)] bg-gray-50 border-t-4 border-[var(--color-secondary)]">
-                <span class="text-2xl">📖</span>
+            <button onclick="switchMobileTab('content')" id="tab-content" aria-pressed="true" aria-label="Lerninhalt anzeigen" class="flex-1 flex flex-col items-center justify-center h-full text-[var(--color-primary)] bg-gray-50 border-t-4 border-[var(--color-secondary)]">
+                <span class="text-2xl" aria-hidden="true">📖</span>
                 <span class="text-xs font-bold mt-1">Lernen</span>
             </button>
-            <button onclick="switchMobileTab('simulation')" id="tab-simulation" class="flex-1 flex flex-col items-center justify-center h-full text-gray-400 hover:text-[var(--color-primary)]">
-                <span class="text-2xl">🧪</span>
+            <button onclick="switchMobileTab('simulation')" id="tab-simulation" aria-pressed="false" aria-label="Simulation anzeigen" class="flex-1 flex flex-col items-center justify-center h-full text-gray-400 hover:text-[var(--color-primary)]">
+                <span class="text-2xl" aria-hidden="true">🧪</span>
                 <span class="text-xs font-bold mt-1">Labor</span>
             </button>
         </div>
@@ -298,13 +285,13 @@
                     <!-- Query Builder Display -->
                     <div style="background-color: var(--color-primary); border-left: 6px solid var(--color-secondary);" class="rounded-lg p-4 font-mono text-sm text-white shadow-md">
                         <div class="text-xs text-[#7cd7c2] mb-2 uppercase tracking-wide font-bold">Aktueller Query</div>
-                        <div id="query-display" class="font-bold text-lg leading-relaxed">SELECT * FROM filme;</div>
+                        <div id="query-display" aria-live="polite" aria-label="Aktueller SQL-Query" class="font-bold text-lg leading-relaxed">SELECT * FROM filme;</div>
                     </div>
 
                     <!-- Interactive Controls Area -->
                     <div id="controls-area" class="bg-white p-6 rounded-lg border border-[var(--color-soft)] shadow-md">
-                        <h3 class="text-xs font-bold text-[var(--color-primary)] uppercase mb-4 tracking-widest">Wähle eine Aktion</h3>
-                        <div id="dynamic-controls" class="flex flex-wrap gap-3">
+                        <h3 id="controls-label" class="text-xs font-bold text-[var(--color-primary)] uppercase mb-4 tracking-widest">Wähle eine Aktion</h3>
+                        <div id="dynamic-controls" role="group" aria-labelledby="controls-label" class="flex flex-wrap gap-3">
                             <!-- Buttons injected by JS -->
                         </div>
                     </div>
@@ -336,8 +323,8 @@
     </main>
 
     <!-- Mobile Menu Overlay -->
-    <div id="mobile-menu" class="fixed inset-0 bg-[var(--color-primary)] bg-opacity-95 z-50 hidden flex flex-col justify-center items-center text-white">
-        <button id="close-mobile-menu" class="absolute top-5 right-5 text-white text-2xl hover:text-[var(--color-secondary)]">&times;</button>
+    <div id="mobile-menu" role="dialog" aria-modal="true" aria-label="Kapitelnavigation" class="fixed inset-0 bg-[var(--color-primary)] bg-opacity-95 z-50 hidden flex flex-col justify-center items-center text-white">
+        <button id="close-mobile-menu" aria-label="Menü schließen" class="absolute top-5 right-5 text-white text-2xl hover:text-[var(--color-secondary)]">&times;</button>
         <nav class="space-y-4 text-center">
             <button onclick="navigateTo('intro'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">1. SELECT & FROM</button>
             <button onclick="navigateTo('where'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">2. WHERE</button>
@@ -804,7 +791,7 @@
                             <span class="text-gray-400">Dein Query:</span>
                             <span id="game-output" class="font-bold"></span>
                         </div>
-                        <div id="game-message" class="mt-2 text-sm font-bold min-h-[20px]"></div>
+                        <div id="game-message" role="status" aria-live="polite" class="mt-2 text-sm font-bold min-h-[20px]"></div>
                         <button onclick="resetGame()" class="mt-4 text-xs text-gray-500 underline hover:text-[var(--color-primary)]">Reset Quiz</button>
                     </div>
                 `,
@@ -826,36 +813,41 @@
 
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
+            const btn = document.getElementById('mobile-menu-btn');
+            const isHidden = menu.classList.toggle('hidden');
+            btn.setAttribute('aria-expanded', !isHidden);
         }
 
         function switchMobileTab(tab) {
             const contentArea = document.getElementById('content-area');
             const simArea = document.getElementById('simulation-area');
-            // Buttons
             const btnContent = document.getElementById('tab-content');
             const btnSim = document.getElementById('tab-simulation');
 
             if (tab === 'content') {
                 contentArea.classList.remove('hidden');
-                simArea.classList.add('hidden'); // This hides it on MOBILE. On Desktop, md:flex OVERRIDES this due to higher specificity of breakpoints.
-                simArea.classList.remove('flex'); // Remove flex so it doesn't interfere, though hidden should win? No, hidden wins over regular flex.
-                
-                // Style Updates
+                contentArea.removeAttribute('aria-hidden');
+                simArea.classList.add('hidden');
+                simArea.classList.remove('flex');
+                simArea.setAttribute('aria-hidden', 'true');
+
+                btnContent.setAttribute('aria-pressed', 'true');
                 btnContent.classList.remove('text-gray-400', 'border-transparent');
                 btnContent.classList.add('text-[var(--color-primary)]', 'bg-gray-50', 'border-t-4', 'border-[var(--color-secondary)]');
-                
+                btnSim.setAttribute('aria-pressed', 'false');
                 btnSim.classList.add('text-gray-400');
                 btnSim.classList.remove('text-[var(--color-primary)]', 'bg-gray-50', 'border-t-4', 'border-[var(--color-secondary)]');
             } else {
-                contentArea.classList.add('hidden'); // This hides it on MOBILE. On Desktop, md:block overrides this.
+                contentArea.classList.add('hidden');
+                contentArea.setAttribute('aria-hidden', 'true');
                 simArea.classList.remove('hidden');
-                simArea.classList.add('flex'); // Essential for mobile layout to work (flex-col relies on flex container)
-                
-                // Style Updates
+                simArea.classList.add('flex');
+                simArea.removeAttribute('aria-hidden');
+
+                btnSim.setAttribute('aria-pressed', 'true');
                 btnSim.classList.remove('text-gray-400', 'border-transparent');
                 btnSim.classList.add('text-[var(--color-primary)]', 'bg-gray-50', 'border-t-4', 'border-[var(--color-secondary)]');
-                
+                btnContent.setAttribute('aria-pressed', 'false');
                 btnContent.classList.add('text-gray-400');
                 btnContent.classList.remove('text-[var(--color-primary)]', 'bg-gray-50', 'border-t-4', 'border-[var(--color-secondary)]');
             }
@@ -865,9 +857,15 @@
             currentSection = sectionId;
             
             // Update Nav Styles
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('active');
+                el.removeAttribute('aria-current');
+            });
             const activeNav = document.getElementById(`nav-${sectionId}`);
-            if(activeNav) activeNav.classList.add('active');
+            if (activeNav) {
+                activeNav.classList.add('active');
+                activeNav.setAttribute('aria-current', 'page');
+            }
 
             // Update Content Area
             const contentArea = document.getElementById('content-area');
@@ -881,13 +879,11 @@
                 </div>
             `;
             
-            // Apply Syntax Highlighting to prose content
-            // We find all <code> blocks and assume they are SQL for this guide
             contentArea.querySelectorAll('code').forEach(block => {
-                // Skip highlighting if the code block contains a link (to preserve the anchor tag)
+                // Skip blocks with links to preserve anchor tags
                 if (block.querySelector('a')) {
-                    block.classList.add('language-sql'); // Still add class for basic styling
-                    return; 
+                    block.classList.add('language-sql');
+                    return;
                 }
 
                 block.classList.add('language-sql');
@@ -896,48 +892,22 @@
                 } catch (e) { console.warn("Prism highlight failed", e); }
             });
 
-            // Update Controls
             const controlsArea = document.getElementById('dynamic-controls');
             controlsArea.innerHTML = '';
-            
-            data.controls.forEach((ctrl, idx) => {
+            data.controls.forEach(ctrl => {
                 const btn = document.createElement('button');
-                // Base: White bg, Black text, Black border, Brutalist shadow
-                // Active/Focus: Black bg, White text, moved down
-                btn.className = `
-                    control-btn group relative px-4 py-2 border-2 border-[var(--color-primary)] 
-                    text-[var(--color-primary)] bg-white text-sm rounded font-bold 
-                    shadow-[3px_3px_0_0_var(--color-primary)] transition-all 
-                    hover:bg-[var(--color-secondary)] hover:shadow-[3px_3px_0_0_var(--color-primary)]
-                    active:shadow-none active:translate-x-[3px] active:translate-y-[3px]
-                `;
-                
-                btn.innerText = ctrl.label; 
-                
+                btn.className = 'control-btn';
+                btn.innerText = ctrl.label;
                 btn.onclick = () => {
-                    // Remove active state from all buttons
-                    document.querySelectorAll('.control-btn').forEach(b => {
-                        b.classList.remove('bg-[var(--color-primary)]', 'text-white', 'shadow-none', 'translate-x-[3px]', 'translate-y-[3px]');
-                        b.classList.add('bg-white', 'text-[var(--color-primary)]', 'shadow-[3px_3px_0_0_var(--color-primary)]');
-                    });
-
-                    // Add active state to clicked button
-                    btn.classList.remove('bg-white', 'text-[var(--color-primary)]', 'shadow-[3px_3px_0_0_var(--color-primary)]', 'hover:bg-[var(--color-secondary)]');
-                    // Force the "pressed" look permanently for the active filter
-                    btn.classList.add('bg-[var(--color-primary)]', 'text-white', 'shadow-none', 'translate-x-[3px]', 'translate-y-[3px]');
-
-                    const highlightedQuery = Prism.highlight(ctrl.query, Prism.languages.sql, 'sql');
-                    document.getElementById('query-display').innerHTML = highlightedQuery;
-                    
-                    // Execute Action
+                    document.querySelectorAll('.control-btn').forEach(b => b.classList.remove('is-active'));
+                    btn.classList.add('is-active');
+                    document.getElementById('query-display').innerHTML = Prism.highlight(ctrl.query, Prism.languages.sql, 'sql');
                     ctrl.action();
                 };
                 controlsArea.appendChild(btn);
             });
 
-            // Reset simulation data on section change to avoid confusion (except limit which builds on sort)
             resetData();
-            // Trigger the first control action as default visual? No, let user explore.
             document.getElementById('query-display').innerHTML = "Bereit...";
 
             // Some sections benefit from an immediate, visible default state.
@@ -958,12 +928,9 @@
         function renderTable() {
             const thead = document.getElementById('table-header');
             const tbody = document.getElementById('table-body');
-            
-            // Clear
             thead.innerHTML = '';
             tbody.innerHTML = '';
 
-            // Headers
             currentColumns.forEach(col => {
                 const th = document.createElement('th');
                 th.className = "px-6 py-4 font-bold text-xs tracking-wider border-b-2 border-[var(--color-primary)] text-left";
@@ -971,7 +938,6 @@
                 thead.appendChild(th);
             });
 
-            // Body
             currentData.forEach(row => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-[var(--color-secondary)] hover:bg-opacity-20 transition-colors border-b border-gray-200 last:border-0";
@@ -1002,9 +968,7 @@
         }
 
         function setColumns(cols) {
-            // Need to ensure we still use rawData but only display cols
             currentColumns = cols;
-            // Ensure we are working with full rows, renderTable handles the column picking
             renderTable();
         }
 
@@ -1014,10 +978,6 @@
         }
 
         function sortData(key, direction) {
-            // Clone currentData to avoid mutating raw if we haven't filtered
-            // Note: If we filtered, currentData is already a subset.
-            // If we haven't filtered, currentData might be a ref to rawData? No, we used spread.
-            
             const sorted = [...currentData].sort((a, b) => {
                 if (a[key] < b[key]) return direction === 'asc' ? -1 : 1;
                 if (a[key] > b[key]) return direction === 'asc' ? 1 : -1;
@@ -1028,13 +988,9 @@
         }
 
         function sortDataMulti(rule1, rule2) {
-            // rule format: ['key', 'direction']
             const sorted = [...currentData].sort((a, b) => {
-                // Rule 1 comparison
                 if (a[rule1[0]] < b[rule1[0]]) return rule1[1] === 'asc' ? -1 : 1;
                 if (a[rule1[0]] > b[rule1[0]]) return rule1[1] === 'asc' ? 1 : -1;
-                
-                // Rule 2 comparison (only if rule 1 is equal)
                 if (a[rule2[0]] < b[rule2[0]]) return rule2[1] === 'asc' ? -1 : 1;
                 if (a[rule2[0]] > b[rule2[0]]) return rule2[1] === 'asc' ? 1 : -1;
                 
@@ -1045,7 +1001,6 @@
         }
 
         function limitData(n) {
-            // Limits whatever is currently in currentData
             currentData = currentData.slice(0, n);
             renderTable();
         }
@@ -1086,9 +1041,7 @@
 
         function checkGame() {
             const msg = document.getElementById('game-message');
-            
-            // Check validity so far
-            for(let i=0; i<gameSequence.length; i++) {
+            for (let i = 0; i < gameSequence.length; i++) {
                 if(gameSequence[i] !== correctSequence[i]) {
                     msg.innerText = "❌ Falsche Reihenfolge! Reset...";
                     msg.className = "mt-2 text-sm font-bold text-red-600";
@@ -1112,7 +1065,6 @@
             document.getElementById('game-message').innerText = "";
         }
 
-        // Start
         init();
 
     </script>
