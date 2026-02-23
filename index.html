@@ -138,10 +138,25 @@
             background-color: #f1f5f9;
         }
         .nav-item.active {
-            background-color: var(--color-secondary); /* Yellow background for active */
-            border-left: 4px solid var(--color-primary); /* Black border */
+            background-color: var(--color-secondary);
+            border-left: 4px solid var(--color-primary);
             color: var(--color-primary);
             font-weight: 800;
+        }
+
+        a.nav-item {
+            text-decoration: none;
+            display: block;
+        }
+
+        /* Mobile menu links (dark background) */
+        #mobile-menu a {
+            color: white;
+            text-decoration: none;
+        }
+        #mobile-menu a:hover {
+            background-color: transparent;
+            color: var(--color-secondary);
         }
 
         a {
@@ -222,16 +237,16 @@
         </div>
         <nav class="flex-1 overflow-y-auto py-4">
             <ul class="space-y-1">
-                <li><button onclick="navigateTo('intro')" id="nav-intro" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">1. SELECT & FROM</button></li>
-                <li><button onclick="navigateTo('where')" id="nav-where" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">2. WHERE Filter</button></li>
-                <li><button onclick="navigateTo('orderby')" id="nav-orderby" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">3. ORDER BY (Einfach)</button></li>
-                <li><button onclick="navigateTo('orderby-multi')" id="nav-orderby-multi" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">4. ORDER BY (Komplex)</button></li>
-                <li><button onclick="navigateTo('and')" id="nav-and" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">5. AND</button></li>
-                <li><button onclick="navigateTo('limit')" id="nav-limit" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">6. LIMIT</button></li>
-                <li><button onclick="navigateTo('distinct')" id="nav-distinct" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">7. DISTINCT</button></li>
-                <li><button onclick="navigateTo('datetime')" id="nav-datetime" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">8. DATETIME</button></li>
-                <li><button onclick="navigateTo('strings')" id="nav-strings" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">9. Zeichenketten</button></li>
-                <li><button onclick="navigateTo('summary')" id="nav-summary" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">Zusammenfassung & Quiz</button></li>
+                <li><a href="#intro"  id="nav-intro"  class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">1. SELECT &amp; FROM</a></li>
+                <li><a href="#where" id="nav-where" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">2. WHERE Filter</a></li>
+                <li><a href="#orderby" id="nav-orderby" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">3. ORDER BY (Einfach)</a></li>
+                <li><a href="#orderby-multi" id="nav-orderby-multi" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">4. ORDER BY (Komplex)</a></li>
+                <li><a href="#and" id="nav-and" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">5. AND</a></li>
+                <li><a href="#limit" id="nav-limit" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">6. LIMIT</a></li>
+                <li><a href="#distinct" id="nav-distinct" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">7. DISTINCT</a></li>
+                <li><a href="#datetime" id="nav-datetime" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">8. DATETIME</a></li>
+                <li><a href="#strings" id="nav-strings" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">9. Zeichenketten</a></li>
+                <li><a href="#summary" id="nav-summary" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">Zusammenfassung &amp; Quiz</a></li>
             </ul>
         </nav>
         <div class="p-4 border-t border-gray-100">
@@ -326,16 +341,16 @@
     <div id="mobile-menu" role="dialog" aria-modal="true" aria-label="Kapitelnavigation" class="fixed inset-0 bg-[var(--color-primary)] bg-opacity-95 z-50 hidden flex flex-col justify-center items-center text-white">
         <button id="close-mobile-menu" aria-label="Menü schließen" class="absolute top-5 right-5 text-white text-2xl hover:text-[var(--color-secondary)]">&times;</button>
         <nav class="space-y-4 text-center">
-            <button onclick="navigateTo('intro'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">1. SELECT & FROM</button>
-            <button onclick="navigateTo('where'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">2. WHERE</button>
-            <button onclick="navigateTo('orderby'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">3. ORDER BY (Einfach)</button>
-            <button onclick="navigateTo('orderby-multi'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">4. ORDER BY (Komplex)</button>
-            <button onclick="navigateTo('and'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">5. AND</button>
-            <button onclick="navigateTo('limit'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">6. LIMIT</button>
-            <button onclick="navigateTo('distinct'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">7. DISTINCT</button>
-            <button onclick="navigateTo('datetime'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">8. DATETIME</button>
-            <button onclick="navigateTo('strings'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">9. Zeichenketten</button>
-            <button onclick="navigateTo('summary'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">Zusammenfassung</button>
+            <a href="#intro"         onclick="toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">1. SELECT &amp; FROM</a>
+            <a href="#where"         onclick="toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">2. WHERE</a>
+            <a href="#orderby"       onclick="toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">3. ORDER BY (Einfach)</a>
+            <a href="#orderby-multi" onclick="toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">4. ORDER BY (Komplex)</a>
+            <a href="#and"           onclick="toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">5. AND</a>
+            <a href="#limit"         onclick="toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">6. LIMIT</a>
+            <a href="#distinct"      onclick="toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">7. DISTINCT</a>
+            <a href="#datetime"      onclick="toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">8. DATETIME</a>
+            <a href="#strings"       onclick="toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">9. Zeichenketten</a>
+            <a href="#summary"       onclick="toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">Zusammenfassung</a>
         </nav>
     </div>
 
@@ -804,9 +819,14 @@
         // --- Core Functions ---
 
         function init() {
-            navigateTo('intro');
-            
-            // Mobile Menu Listeners
+            const hash = location.hash.slice(1);
+            navigateTo(hash && sections[hash] ? hash : 'intro');
+
+            window.addEventListener('hashchange', () => {
+                const id = location.hash.slice(1);
+                if (id && sections[id]) navigateTo(id);
+            });
+
             document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
             document.getElementById('close-mobile-menu').addEventListener('click', toggleMobileMenu);
         }
@@ -855,6 +875,10 @@
 
         function navigateTo(sectionId) {
             currentSection = sectionId;
+
+            if (location.hash !== '#' + sectionId) {
+                history.replaceState(null, '', '#' + sectionId);
+            }
             
             // Update Nav Styles
             document.querySelectorAll('.nav-item').forEach(el => {
