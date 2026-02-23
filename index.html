@@ -6,14 +6,33 @@
     <title>SQL Guide</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Prism.js for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+
     <!-- Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Slab:wght@100..900&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --color-primary: #000000;   /* Black - Dominant, Headers, Active Nav */
+            --color-secondary: #ffd900; /* Yellow - High contrast accents */
+            --color-accent: #67c50a;    /* Lime Green - Success/Positive */
+            --color-soft: #054e6f;      /* Deep Blue - Subtler text/border elements (was primary) */
+            --color-light: #f8fafc;     /* Background */
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #FDFBF7; /* Warm neutral background */
-            color: #1F2937;
+            background-color: var(--color-light); 
+            color: var(--color-primary);
+        }
+        
+        h1, h2, h3, h4, h5, h6, .font-serif-header {
+            font-family: 'Roboto Slab', serif;
         }
         
         /* Custom Scrollbar for better aesthetics */
@@ -25,28 +44,143 @@
             background: #F3F4F6; 
         }
         ::-webkit-scrollbar-thumb {
-            background: #D1D5DB; 
+            background: #cbd5e1; 
             border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #9CA3AF; 
+            background: var(--color-primary); 
         }
 
-        .sql-keyword {
-            color: #B45309; /* Terracotta/Orange for keywords */
-            font-weight: 700;
-        }
-        .sql-string {
-            color: #047857; /* Green for strings */
-        }
-        .sql-number {
-            color: #1D4ED8; /* Blue for numbers */
+        /* Prism Overrides for cleaner inline code */
+        code[class*="language-"], pre[class*="language-"] {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.9em;
+            background: #111 !important; /* Very dark background for code blocks */
+            color: #eee !important;
+            border-radius: 6px;
+            border: 1px solid #333;
         }
 
-        .nav-item.active {
-            background-color: #E5E7EB;
-            border-left: 4px solid #B45309;
+        /* Prism Token Colors adjustment for High Contrast */
+        /* Since we can't easily change prism CSS file, we rely on the theme but override inline code */
+
+        :not(pre) > code[class*="language-"] {
+            padding: 0.2em 0.4em;
+            border-radius: 0.3em;
+            white-space: normal;
+            background-color: #e2e8f0 !important; /* Slightly darker light bg for contrast */
+            color: #1e293b !important; /* Dark text base */
             font-weight: 600;
+            border: 1px solid #cbd5e1;
+        }
+
+        /* 
+           FORCE overrides for tokens inside inline code blocks (to fight the Dark Theme colors).
+           We want dark readable colors on the light inline background. 
+        */
+        :not(pre) > code[class*="language-"] .token.comment,
+        :not(pre) > code[class*="language-"] .token.prolog,
+        :not(pre) > code[class*="language-"] .token.doctype,
+        :not(pre) > code[class*="language-"] .token.cdata {
+            color: #64748b; /* Slate 500 */
+        }
+
+        :not(pre) > code[class*="language-"] .token.punctuation {
+            color: #334155; /* Slate 700 */
+        }
+
+        :not(pre) > code[class*="language-"] .token.property,
+        :not(pre) > code[class*="language-"] .token.tag,
+        :not(pre) > code[class*="language-"] .token.boolean,
+        :not(pre) > code[class*="language-"] .token.number,
+        :not(pre) > code[class*="language-"] .token.constant,
+        :not(pre) > code[class*="language-"] .token.symbol,
+        :not(pre) > code[class*="language-"] .token.deleted {
+            color: #0d9488; /* Teal 600 - Readable Green/Teal */
+        }
+
+        :not(pre) > code[class*="language-"] .token.selector,
+        :not(pre) > code[class*="language-"] .token.attr-name,
+        :not(pre) > code[class*="language-"] .token.string,
+        :not(pre) > code[class*="language-"] .token.char,
+        :not(pre) > code[class*="language-"] .token.builtin,
+        :not(pre) > code[class*="language-"] .token.inserted {
+            color: #054e6f; /* Using our Deep Blue for Strings/Attrs */
+        }
+
+        :not(pre) > code[class*="language-"] .token.operator,
+        :not(pre) > code[class*="language-"] .token.entity,
+        :not(pre) > code[class*="language-"] .token.url,
+        :not(pre) > code[class*="language-"] .language-css .token.string,
+        :not(pre) > code[class*="language-"] .style .token.string {
+            color: #a855f7; /* Purple 500 */
+        }
+
+        :not(pre) > code[class*="language-"] .token.atrule,
+        :not(pre) > code[class*="language-"] .token.attr-value,
+        :not(pre) > code[class*="language-"] .token.keyword {
+            color: #d97706; /* Amber 600 - Readable Orange/Brown for Keywords (WHERE, AND) */
+        }
+        
+        :not(pre) > code[class*="language-"] .token.function,
+        :not(pre) > code[class*="language-"] .token.class-name {
+            color: #dc2626; /* Red 600 */
+        }
+        
+        :not(pre) > code[class*="language-"] .token.regex,
+        :not(pre) > code[class*="language-"] .token.important,
+        :not(pre) > code[class*="language-"] .token.variable {
+            color: #ea580c; /* Orange 600 */
+        }
+        
+        /* Custom UI Classes based on Palette */
+        .u-text-primary { color: var(--color-primary); }
+        .u-bg-primary { background-color: var(--color-primary); }
+        .u-border-primary { border-color: var(--color-primary); }
+        
+        .nav-item {
+            color: #64748b;
+        }
+        .nav-item:hover {
+            color: var(--color-primary);
+            background-color: #f1f5f9;
+        }
+        .nav-item.active {
+            background-color: var(--color-secondary); /* Yellow background for active */
+            border-left: 4px solid var(--color-primary); /* Black border */
+            color: var(--color-primary);
+            font-weight: 800;
+        }
+
+        .btn-primary {
+            background-color: white;
+            border: 2px solid var(--color-primary);
+            color: var(--color-primary);
+        }
+        .btn-primary:hover {
+            background-color: var(--color-secondary);
+            color: var(--color-primary);
+            border-color: var(--color-primary);
+            box-shadow: 2px 2px 0px var(--color-primary); /* Brutalist shadow */
+        }
+        
+        /* Note box styling */
+        .note-box {
+            background-color: #fffbeb; 
+            border-left: 4px solid var(--color-secondary);
+        }
+        
+        a {
+            color: var(--color-primary);
+            text-decoration: underline;
+            text-decoration-color: var(--color-secondary);
+            text-decoration-thickness: 2px;
+            text-underline-offset: 2px;
+        }
+        a:hover {
+            background-color: var(--color-secondary);
+            color: var(--color-primary);
+            text-decoration: none;
         }
 
         /* Table Styling */
@@ -94,9 +228,9 @@
 <body class="h-screen flex overflow-hidden">
 
     <!-- Sidebar Navigation -->
-    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col hidden md:flex z-10 shadow-sm">
+    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col hidden md:flex z-10 shadow-sm relative">
         <div class="p-6 border-b border-gray-100">
-            <h1 class="text-xl font-bold text-gray-800">SQL</h1>
+            <h1 class="text-xl font-bold text-gray-800" style="font-family: 'Roboto Slab', serif;">SQL</h1>
             <p class="text-xs text-gray-500 mt-1">Interaktiver Guide</p>
         </div>
         <nav class="flex-1 overflow-y-auto py-4">
@@ -109,6 +243,7 @@
                 <li><button onclick="navigateTo('limit')" id="nav-limit" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">6. LIMIT</button></li>
                 <li><button onclick="navigateTo('distinct')" id="nav-distinct" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">7. DISTINCT</button></li>
                 <li><button onclick="navigateTo('datetime')" id="nav-datetime" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">8. DATETIME</button></li>
+                <li><button onclick="navigateTo('strings')" id="nav-strings" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">9. Zeichenketten</button></li>
                 <li><button onclick="navigateTo('summary')" id="nav-summary" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors">Zusammenfassung & Quiz</button></li>
             </ul>
         </nav>
@@ -126,38 +261,50 @@
     </div>
 
     <!-- Main Content -->
-    <main class="flex-1 flex flex-col h-full relative overflow-hidden pt-14 md:pt-0">
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden pt-14 md:pt-0 pb-16 md:pb-0"> 
         
+        <!-- Mobile Tab Bar (Bottom Navigation) -->
+        <div class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 z-30 flex justify-around items-center h-16 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+            <button onclick="switchMobileTab('content')" id="tab-content" class="flex-1 flex flex-col items-center justify-center h-full text-[var(--color-primary)] bg-gray-50 border-t-4 border-[var(--color-secondary)]">
+                <span class="text-2xl">📖</span>
+                <span class="text-xs font-bold mt-1">Lernen</span>
+            </button>
+            <button onclick="switchMobileTab('simulation')" id="tab-simulation" class="flex-1 flex flex-col items-center justify-center h-full text-gray-400 hover:text-[var(--color-primary)]">
+                <span class="text-2xl">🧪</span>
+                <span class="text-xs font-bold mt-1">Labor</span>
+            </button>
+        </div>
+
         <!-- Interactive Workspace -->
-        <div class="flex flex-col lg:flex-row h-full">
+        <div class="flex flex-col lg:flex-row h-full overflow-y-auto lg:overflow-hidden">
             
             <!-- LEFT: Educational Context (Scrollable) -->
-            <div id="content-area" class="w-full lg:w-5/12 overflow-y-auto p-6 lg:p-10 bg-[#FDFBF7]">
+            <div id="content-area" class="w-full lg:w-5/12 h-auto lg:h-full overflow-y-visible lg:overflow-y-auto p-6 lg:p-10 bg-[#f8fafc] md:block custom-scrollbar pb-24 lg:pb-10">
                 <!-- Dynamic Content Injected Here -->
             </div>
 
             <!-- RIGHT: Live Simulation (Fixed/Scrollable depending on height) -->
-            <div class="w-full lg:w-7/12 bg-white border-l border-gray-200 flex flex-col h-full">
+            <div id="simulation-area" class="w-full lg:w-7/12 bg-white border-l border-[#e2e8f0] flex-col h-full md:h-[600px] lg:h-full hidden md:flex shrink-0">
                 
                 <!-- Simulation Header -->
-                <div class="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
-                    <span class="font-semibold text-gray-700 text-sm">Live Datenbank Vorschau: <code class="bg-gray-200 px-2 py-1 rounded text-xs text-gray-600">tabelle: filme</code></span>
-                    <button onclick="resetData()" class="text-xs text-blue-600 hover:underline">Reset Simulation</button>
+                <div class="p-4 border-b border-[#e2e8f0] bg-[#f8fafc] flex justify-between items-center">
+                    <span style="color: var(--color-primary)" class="font-bold text-sm">Live Datenbank Vorschau: <code class="bg-gray-100 px-2 py-1 rounded text-xs text-gray-800 border border-gray-200">tabelle: filme</code></span>
+                    <button onclick="resetData()" class="text-xs font-semibold px-2 py-1 rounded text-[#054e6f] hover:bg-[#e0f2fe]">Reset Simulation</button>
                 </div>
 
                 <!-- Controls & visualization -->
                 <div class="flex-1 overflow-y-auto p-6 space-y-6">
                     
                     <!-- Query Builder Display -->
-                    <div class="bg-gray-900 rounded-lg p-4 font-mono text-sm text-gray-100 shadow-md">
-                        <div class="text-xs text-gray-500 mb-2 uppercase tracking-wide">Aktueller Query</div>
-                        <div id="query-display">SELECT * FROM filme;</div>
+                    <div style="background-color: var(--color-primary); border-left: 6px solid var(--color-secondary);" class="rounded-lg p-4 font-mono text-sm text-white shadow-md">
+                        <div class="text-xs text-[#7cd7c2] mb-2 uppercase tracking-wide font-bold">Aktueller Query</div>
+                        <div id="query-display" class="font-bold text-lg leading-relaxed">SELECT * FROM filme;</div>
                     </div>
 
                     <!-- Interactive Controls Area -->
-                    <div id="controls-area" class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase mb-3">Interaktionen</h3>
-                        <div id="dynamic-controls" class="flex flex-wrap gap-2">
+                    <div id="controls-area" class="bg-white p-6 rounded-lg border border-[var(--color-soft)] shadow-md">
+                        <h3 class="text-xs font-bold text-[var(--color-primary)] uppercase mb-4 tracking-widest">Wähle eine Aktion</h3>
+                        <div id="dynamic-controls" class="flex flex-wrap gap-3">
                             <!-- Buttons injected by JS -->
                         </div>
                     </div>
@@ -166,20 +313,20 @@
                     <div class="grid grid-cols-1 gap-6">
                         
                         <!-- Table -->
-                        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+                        <div class="bg-white rounded-lg border-2 border-[var(--color-primary)] overflow-hidden shadow-lg">
                             <div class="overflow-x-auto">
                                 <table class="min-w-full data-table text-sm text-left">
-                                    <thead>
-                                        <tr id="table-header">
+                                    <thead class="bg-[var(--color-primary)] text-white uppercase tracking-wider font-semibold">
+                                        <tr id="table-header" style="font-family: 'Roboto Slab', serif;">
                                             <!-- Headers injected JS -->
                                         </tr>
                                     </thead>
-                                    <tbody id="table-body">
+                                    <tbody id="table-body" class="divide-y divide-[var(--color-soft)]">
                                         <!-- Rows injected JS -->
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="p-2 text-xs text-gray-400 text-center bg-gray-50">Zeigt max. alle Ergebnisse (simuliert)</div>
+                            <div class="p-2 text-xs text-[var(--color-primary)] opacity-70 text-right bg-[var(--color-secondary)] bg-opacity-20 italic">12 Datensätze in Datenbank</div>
                         </div>
 
                     </div>
@@ -189,18 +336,19 @@
     </main>
 
     <!-- Mobile Menu Overlay -->
-    <div id="mobile-menu" class="fixed inset-0 bg-gray-800 bg-opacity-90 z-50 hidden flex flex-col justify-center items-center">
-        <button id="close-mobile-menu" class="absolute top-5 right-5 text-white text-2xl">&times;</button>
+    <div id="mobile-menu" class="fixed inset-0 bg-[var(--color-primary)] bg-opacity-95 z-50 hidden flex flex-col justify-center items-center text-white">
+        <button id="close-mobile-menu" class="absolute top-5 right-5 text-white text-2xl hover:text-[var(--color-secondary)]">&times;</button>
         <nav class="space-y-4 text-center">
-            <button onclick="navigateTo('intro'); toggleMobileMenu()" class="block text-white text-xl p-2">1. SELECT & FROM</button>
-            <button onclick="navigateTo('where'); toggleMobileMenu()" class="block text-white text-xl p-2">2. WHERE</button>
-            <button onclick="navigateTo('orderby'); toggleMobileMenu()" class="block text-white text-xl p-2">3. ORDER BY (Einfach)</button>
-            <button onclick="navigateTo('orderby-multi'); toggleMobileMenu()" class="block text-white text-xl p-2">4. ORDER BY (Komplex)</button>
-            <button onclick="navigateTo('and'); toggleMobileMenu()" class="block text-white text-xl p-2">5. AND</button>
-            <button onclick="navigateTo('limit'); toggleMobileMenu()" class="block text-white text-xl p-2">6. LIMIT</button>
-            <button onclick="navigateTo('distinct'); toggleMobileMenu()" class="block text-white text-xl p-2">7. DISTINCT</button>
-            <button onclick="navigateTo('datetime'); toggleMobileMenu()" class="block text-white text-xl p-2">8. DATETIME</button>
-            <button onclick="navigateTo('summary'); toggleMobileMenu()" class="block text-white text-xl p-2">Zusammenfassung</button>
+            <button onclick="navigateTo('intro'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">1. SELECT & FROM</button>
+            <button onclick="navigateTo('where'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">2. WHERE</button>
+            <button onclick="navigateTo('orderby'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">3. ORDER BY (Einfach)</button>
+            <button onclick="navigateTo('orderby-multi'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">4. ORDER BY (Komplex)</button>
+            <button onclick="navigateTo('and'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">5. AND</button>
+            <button onclick="navigateTo('limit'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">6. LIMIT</button>
+            <button onclick="navigateTo('distinct'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">7. DISTINCT</button>
+            <button onclick="navigateTo('datetime'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">8. DATETIME</button>
+            <button onclick="navigateTo('strings'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">9. Zeichenketten</button>
+            <button onclick="navigateTo('summary'); toggleMobileMenu()" class="block text-xl p-2 hover:text-[var(--color-secondary)]">Zusammenfassung</button>
         </nav>
     </div>
 
@@ -231,15 +379,15 @@
             'intro': {
                 title: "1. SELECT & FROM",
                 content: `
-                    <p class="text-gray-600 mb-4">
+                    <p class="mb-4">
                         Willkommen! Wir starten mit den absoluten Grundlagen. In SQL bestimmen zwei Befehle das Fundament jeder Abfrage:
                     </p>
-                    <div class="bg-white p-4 rounded-lg border-l-4 border-yellow-500 shadow-sm mb-6">
-                        <h3 class="font-bold text-gray-800 mb-2">Die Regel</h3>
-                        <p class="text-sm text-gray-600 mb-2"><strong>SELECT</strong> bestimmt das <em>WAS</em> (die Spalten).</p>
-                        <p class="text-sm text-gray-600"><strong>FROM</strong> bestimmt das <em>WO HER</em> (die Tabelle).</p>
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-[var(--color-secondary)] shadow-sm mb-6">
+                        <h3 class="font-bold mb-2">Die Regel</h3>
+                        <p class="text-sm mb-2"><strong><a href="https://mariadb.com/docs/server/reference/sql-statements/data-manipulation/selecting-data/select" target="_blank" class="hover:underline">SELECT</a></strong> bestimmt das <em>WAS</em> (die Spalten).</p>
+                        <p class="text-sm"><strong><a href="https://mariadb.com/docs/server/reference/sql-statements/data-manipulation/selecting-data/select" target="_blank" class="hover:underline">FROM</a></strong> bestimmt das <em>WO HER</em> (die Tabelle).</p>
                     </div>
-                    <p class="text-gray-600 mb-4">
+                    <p class="mb-4">
                         Im Simulator rechts siehst du unsere Tabelle <code>filme</code>. 
                         Benutze die Buttons unten, um zu sehen, wie sich das Ergebnis ändert.
                     </p>
@@ -253,17 +401,17 @@
             'where': {
                 title: "2. WHERE (Der Filter)",
                 content: `
-                    <p class="text-gray-600 mb-4">
+                    <p class="mb-4">
                         Jetzt wird es interessant. Meistens wollen wir nicht <em>alle</em> Filme sehen, sondern nur bestimmte. 
-                        Dafür nutzen wir <code>WHERE</code>.
+                        Dafür nutzen wir <code><a href="https://mariadb.com/kb/en/where/" target="_blank" class="hover:underline">WHERE</a></code>.
                     </p>
-                    <h3 class="font-bold text-gray-800 mt-6 mb-2">Syntax Highlights</h3>
-                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-2 mb-6">
+                    <h3 class="font-bold mt-6 mb-2">Syntax Highlights</h3>
+                    <ul class="list-disc list-inside text-sm space-y-2 mb-6">
                         <li>Text braucht Anführungszeichen: <code>genre = 'Action'</code></li>
                         <li>Zahlen stehen nackt: <code>jahr > 2000</code></li>
                         <li>Operatoren: <code>=</code>, <code>!=</code>, <code>></code>, <code><</code></li>
                     </ul>
-                    <p class="text-gray-600 mb-4">
+                    <p class="mb-4">
                         Teste die Filter rechts. Beobachte, wie Zeilen verschwinden, die nicht zur Bedingung passen.
                     </p>
                 `,
@@ -278,20 +426,20 @@
             'orderby': {
                 title: "3. ORDER BY (Einfach)",
                 content: `
-                    <p class="text-gray-600 mb-4">
-                        Datenbanken speichern Daten oft chaotisch. Mit <code>ORDER BY</code> bringen wir Ordnung rein.
+                    <p class="mb-4">
+                        Datenbanken speichern Daten oft chaotisch. Mit <code><a href="https://mariadb.com/docs/server/reference/sql-statements/data-manipulation/selecting-data/order-by/" target="_blank" class="hover:underline">ORDER BY</a></code> bringen wir Ordnung rein.
                     </p>
                     <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div class="bg-gray-100 p-3 rounded">
-                            <span class="block font-bold text-gray-700">ASC</span>
-                            <span class="text-xs text-gray-500">Aufsteigend (Standard)<br>1 -> 9<br>A -> Z</span>
+                        <div class="bg-gray-100 p-3 rounded border border-gray-300">
+                            <span class="block font-bold">ASC</span>
+                            <span class="text-xs">Aufsteigend (Standard)<br>1 -> 9<br>A -> Z</span>
                         </div>
-                        <div class="bg-gray-100 p-3 rounded">
-                            <span class="block font-bold text-gray-700">DESC</span>
-                            <span class="text-xs text-gray-500">Absteigend<br>9 -> 1<br>Z -> A</span>
+                        <div class="bg-gray-100 p-3 rounded border border-gray-300">
+                            <span class="block font-bold">DESC</span>
+                            <span class="text-xs">Absteigend<br>9 -> 1<br>Z -> A</span>
                         </div>
                     </div>
-                    <p class="text-gray-600 mb-4">
+                    <p class="mb-4">
                         Dieser Befehl kommt <strong>immer nach</strong> <code>WHERE</code> (falls vorhanden).
                     </p>
                 `,
@@ -306,18 +454,18 @@
             'orderby-multi': {
                 title: "4. ORDER BY (Mehrere Spalten)",
                 content: `
-                    <p class="text-gray-600 mb-4">
+                    <p class="mb-4">
                         Was passiert, wenn zwei Filme das gleiche Rating haben? Die Reihenfolge ist dann oft zufällig.
                         Um das zu verhindern, können wir eine <strong>zweite Sortierregel</strong> hinzufügen.
                     </p>
-                    <div class="bg-white border border-gray-200 p-4 rounded-lg mb-6 shadow-sm">
-                        <h4 class="font-bold text-gray-800 text-sm mb-2">Die Hierarchie</h4>
-                        <ol class="list-decimal list-inside text-sm text-gray-600 space-y-1">
+                    <div class="bg-white border border-gray-300 p-4 rounded-lg mb-6 shadow-sm">
+                        <h4 class="font-bold text-sm mb-2">Die Hierarchie</h4>
+                        <ol class="list-decimal list-inside text-sm space-y-1">
                             <li>Sortiere erst nach Spalte 1.</li>
                             <li>Nur bei Gleichstand: Sortiere nach Spalte 2.</li>
                         </ol>
                     </div>
-                    <p class="text-gray-600 mb-4">
+                    <p class="mb-4">
                         Probier es aus: Sortiere nach Genre. Innerhalb der Action-Filme sortieren wir dann nach Jahr.
                     </p>
                 `,
@@ -338,17 +486,17 @@
             'and': {
                 title: "5. AND (Mehrere Bedingungen)",
                 content: `
-                    <p class="text-gray-600 mb-4">
-                        Mit <code>WHERE</code> filterst du nach <em>einer</em> Bedingung. Oft brauchst du aber mehrere Kriterien.
-                        Genau dafür gibt es <code>AND</code>.
+                    <p class="mb-4">
+                        Mit <code><a href="https://mariadb.com/kb/en/where/" target="_blank" class="hover:underline">WHERE</a></code> filterst du nach <em>einer</em> Bedingung. Oft brauchst du aber mehrere Kriterien.
+                        Genau dafür gibt es <code><a href="https://mariadb.com/kb/en/and/" target="_blank" class="hover:underline">AND</a></code>.
                     </p>
-                    <div class="bg-white border border-gray-200 p-4 rounded-lg mb-6 shadow-sm">
-                        <h4 class="font-bold text-gray-800 text-sm mb-2">Syntax</h4>
-                        <p class="text-sm text-gray-600">
+                    <div class="bg-white border border-gray-300 p-4 rounded-lg mb-6 shadow-sm">
+                        <h4 class="font-bold text-sm mb-2">Syntax</h4>
+                        <p class="text-sm">
                             <code>SELECT * FROM filme WHERE genre = 'Action' AND jahr &gt; 2010;</code>
                         </p>
                     </div>
-                    <p class="text-sm text-gray-500 italic mb-4">
+                    <p class="text-sm italic mb-4">
                         Merke: <code>AND</code> verengt das Ergebnis (beide Bedingungen müssen wahr sein).
                     </p>
                 `,
@@ -362,15 +510,15 @@
             'limit': {
                 title: "6. LIMIT",
                 content: `
-                    <p class="text-gray-600 mb-4">
+                    <p class="mb-4">
                         Manchmal wollen wir nur einen kleinen Ausschnitt, zum Beispiel für eine "Top 3"-Liste.
-                        Dafür ist <code>LIMIT</code> da.
+                        Dafür ist <code><a href="https://mariadb.com/kb/en/limit/" target="_blank" class="hover:underline">LIMIT</a></code> da.
                     </p>
-                    <p class="text-gray-600 mb-4">
+                    <p class="mb-4">
                         <strong>Wichtig:</strong> LIMIT steht fast immer ganz am <strong>Ende</strong> des SQL-Befehls.
                         Es schneidet die Tabelle einfach nach X Zeilen ab.
                     </p>
-                    <p class="text-sm text-gray-500 italic mb-4">
+                    <p class="text-sm italic mb-4">
                         Hinweis: Ohne ORDER BY liefert LIMIT zufällige Zeilen. Kombiniere sie für sinnvolle Ergebnisse!
                     </p>
                 `,
@@ -387,18 +535,18 @@
             'distinct': {
                 title: "7. DISTINCT",
                 content: `
-                    <p class="text-gray-600 mb-4">
+                    <p class="mb-4">
                         Manchmal enthält eine Tabelle mehrere Zeilen mit dem <em>gleichen</em> Wert in einer Spalte.
-                        Wenn du diese Werte nur <strong>einmal</strong> sehen willst, nutzt du <code>DISTINCT</code>.
+                        Wenn du diese Werte nur <strong>einmal</strong> sehen willst, nutzt du <code><a href="https://mariadb.com/kb/en/select/#distinct" target="_blank" class="hover:underline">DISTINCT</a></code>.
                     </p>
-                    <div class="bg-white border border-gray-200 p-4 rounded-lg mb-6 shadow-sm">
-                        <h4 class="font-bold text-gray-800 text-sm mb-2">Merke</h4>
-                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                    <div class="bg-white border border-gray-300 p-4 rounded-lg mb-6 shadow-sm">
+                        <h4 class="font-bold text-sm mb-2">Merke</h4>
+                        <ul class="list-disc list-inside text-sm space-y-1">
                             <li><code>SELECT DISTINCT spalte FROM tabelle;</code> zeigt jeden Wert nur einmal.</li>
                             <li>Mit mehreren Spalten gilt DISTINCT für die <strong>Kombination</strong> der Spalten.</li>
                         </ul>
                     </div>
-                    <p class="text-sm text-gray-500 italic mb-4">
+                    <p class="text-sm italic mb-4">
                         Tipp: DISTINCT wird direkt nach <code>SELECT</code> geschrieben.
                     </p>
                 `,
@@ -412,18 +560,18 @@
             'datetime': {
                 title: "8. DATETIME",
                 content: `
-                    <p class="text-gray-600 mb-4">
-                        In SQL speichern wir Datum+Uhrzeit häufig als <code>DATETIME</code> (z.B. <code>2020-09-15 13:25:00</code>).
+                    <p class="mb-4">
+                        In SQL speichern wir Datum+Uhrzeit häufig als <code><a href="https://mariadb.com/kb/en/datetime/" target="_blank" class="hover:underline">DATETIME</a></code> (z.B. <code>2020-09-15 13:25:00</code>).
                         Damit kannst du z.B. Einträge nach einem bestimmten Jahr filtern.
                     </p>
-                    <div class="bg-white border border-gray-200 p-4 rounded-lg mb-6 shadow-sm">
-                        <h4 class="font-bold text-gray-800 text-sm mb-2">Typische Filter</h4>
-                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
-                            <li><code>WHERE YEAR(eingetragen_am) = 2019</code></li>
+                    <div class="bg-white border border-gray-300 p-4 rounded-lg mb-6 shadow-sm">
+                        <h4 class="font-bold text-sm mb-2">Typische Filter</h4>
+                        <ul class="list-disc list-inside text-sm space-y-1">
+                            <li><code>WHERE <a href="https://mariadb.com/kb/en/year/" target="_blank" class="hover:underline">YEAR</a>(eingetragen_am) = 2019</code></li>
                             <li><code>WHERE eingetragen_am &gt;= '2019-01-01' AND eingetragen_am &lt; '2020-01-01'</code></li>
                         </ul>
                     </div>
-                    <p class="text-sm text-gray-500 italic mb-4">
+                    <p class="text-sm italic mb-4">
                         Hinweis: Ein Bereichs-Filter (von/bis) ist oft schneller als <code>YEAR(...)</code>, weil Indizes besser genutzt werden.
                     </p>
                 `,
@@ -435,41 +583,229 @@
                     { label: "Neueste zuerst", action: () => { setColumns(['titel', 'eingetragen_am']); sortData('eingetragen_am', 'desc'); }, query: "SELECT titel, eingetragen_am FROM filme ORDER BY eingetragen_am DESC;" }
                 ]
             },
+            'strings': {
+                title: "9. Zeichenketten (Strings)",
+                content: `
+                    <p class="mb-6 leading-relaxed">
+                        Textdaten sind oft unsauber oder müssen formatiert werden. SQL bietet mächtige Werkzeuge, um Texte direkt in der Abfrage zu bearbeiten.
+                    </p>
+                    
+                    <div class="space-y-4 mb-8">
+                        <!-- Card 1: Formatting -->
+                        <div class="bg-white p-4 rounded border border-gray-200 hover:border-[var(--color-secondary)] transition-colors shadow-sm">
+                            <h4 class="font-bold text-[var(--color-primary)] mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
+                                <span class="text-xl">Aa</span> Formatierung
+                            </h4>
+                            <ul class="text-sm grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <li class="flex flex-col">
+                                    <code class="font-bold text-[var(--color-soft)]">UPPER(str) / LOWER(str)</code>
+                                    <span class="text-gray-500 text-xs">Alles groß- oder kleinschreiben.</span>
+                                </li>
+                                <li class="flex flex-col">
+                                    <code class="font-bold text-[var(--color-soft)]">TRIM(str)</code>
+                                    <span class="text-gray-500 text-xs">Entfernt Leerzeichen am Anfang/Ende.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Card 2: Extraction -->
+                        <div class="bg-white p-4 rounded border border-gray-200 hover:border-[var(--color-secondary)] transition-colors shadow-sm">
+                            <h4 class="font-bold text-[var(--color-primary)] mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
+                                <span class="text-xl">✂️</span> Ausschneiden
+                            </h4>
+                            <ul class="text-sm grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <li class="flex flex-col">
+                                    <code class="font-bold text-[var(--color-soft)]">LEFT(str, n) / RIGHT(str, n)</code>
+                                    <span class="text-gray-500 text-xs">Nimmt die ersten/letzten <i>n</i> Zeichen.</span>
+                                </li>
+                                <li class="flex flex-col">
+                                    <code class="font-bold text-[var(--color-soft)]">SUBSTRING(str, start, len)</code>
+                                    <span class="text-gray-500 text-xs">Schneidet teil heraus (Start bei 1!).</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Card 3: Analysis -->
+                        <div class="bg-white p-4 rounded border border-gray-200 hover:border-[var(--color-secondary)] transition-colors shadow-sm">
+                            <h4 class="font-bold text-[var(--color-primary)] mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
+                                <span class="text-xl">🔍</span> Suchen & Finden
+                            </h4>
+                            <ul class="text-sm grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <li class="flex flex-col">
+                                    <code class="font-bold text-[var(--color-soft)]">INSTR(str, 'such')</code>
+                                    <span class="text-gray-500 text-xs">Position des Suchworts (0 w. n. gef.).</span>
+                                </li>
+                                <li class="flex flex-col">
+                                    <code class="font-bold text-[var(--color-soft)]">LIKE '%Muster%'</code>
+                                    <span class="text-gray-500 text-xs">Filtert nach Textmustern.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Card 4: Modification -->
+                        <div class="bg-white p-4 rounded border border-gray-200 hover:border-[var(--color-secondary)] transition-colors shadow-sm">
+                            <h4 class="font-bold text-[var(--color-primary)] mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
+                                <span class="text-xl">✏️</span> Bearbeiten
+                            </h4>
+                            <ul class="text-sm grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <li class="flex flex-col">
+                                    <code class="font-bold text-[var(--color-soft)]">REPLACE(str, 'alt', 'neu')</code>
+                                    <span class="text-gray-500 text-xs">Tauscht Textteile aus.</span>
+                                </li>
+                                <li class="flex flex-col">
+                                    <code class="font-bold text-[var(--color-soft)]">CHAR_LENGTH(str)</code>
+                                    <span class="text-gray-500 text-xs">Zählt die Zeichenanzahl.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-[var(--color-secondary)] text-sm mb-6">
+                        <strong>💡 Tipp:</strong> String-Funktionen sind perfekt, um "schmutzige" Daten zu reinigen, bevor man sie dem Benutzer anzeigt.
+                    </div>
+                `,
+                controls: [
+                    { 
+                        label: "🔄 Reset", 
+                        action: () => { 
+                            currentColumns = ['titel', 'jahr', 'genre', 'rating'];
+                            currentData = [...rawData];
+                            renderTable(); 
+                        }, 
+                        query: "SELECT * FROM filme;" 
+                    },
+                    { 
+                        label: "🔠 Großbuchstaben (UPPER)", 
+                        action: () => { 
+                            currentColumns = ['UPPER(titel)', 'genre'];
+                            currentData = rawData.map(r => ({ ...r, 'UPPER(titel)': r.titel.toUpperCase() })); 
+                            renderTable(); 
+                        }, 
+                        query: "SELECT UPPER(titel), genre FROM filme;" 
+                    },
+                    { 
+                        label: "� Kleinbuchstaben (LOWER)", 
+                        action: () => { 
+                            currentColumns = ['LOWER(titel)', 'genre'];
+                            currentData = rawData.map(r => ({ ...r, 'LOWER(titel)': r.titel.toLowerCase() })); 
+                            renderTable(); 
+                        }, 
+                        query: "SELECT LOWER(titel), genre FROM filme;" 
+                    },
+                    { 
+                        label: "🧼 TRIM (Leerzeichen)", 
+                        action: () => { 
+                            currentColumns = ['"Schmutzig"', 'TRIM'];
+                            currentData = rawData.slice(0, 5).map(r => {
+                                const dirty = `  ${r.titel}  `;
+                                return { '"Schmutzig"': `"${dirty}"`, 'TRIM': `"${dirty.trim()}"` };
+                            });
+                            renderTable(); 
+                        }, 
+                        query: "SELECT titel_dirty, TRIM(titel_dirty) FROM filme LIMIT 5;" 
+                    },
+                    { 
+                        label: "📏 Länge (CHAR_LENGTH)", 
+                        action: () => { 
+                            currentColumns = ['titel', 'Länge'];
+                            currentData = rawData.map(r => ({ ...r, 'Länge': r.titel.length })); 
+                            renderTable(); 
+                        }, 
+                        query: "SELECT titel, CHAR_LENGTH(titel) as Länge FROM filme;" 
+                    },
+                    { 
+                        label: "✂️ Links (LEFT)", 
+                        action: () => { 
+                            currentColumns = ['Orig', 'Left3'];
+                            currentData = rawData.map(r => ({ 'Orig': r.titel, 'Left3': r.titel.substring(0, 3) })); 
+                            renderTable(); 
+                        }, 
+                        query: "SELECT titel, LEFT(titel, 3) FROM filme;" 
+                    },
+                    { 
+                        label: "✂️ Rechts (RIGHT)", 
+                        action: () => { 
+                            currentColumns = ['Orig', 'Right3'];
+                            currentData = rawData.map(r => ({ 'Orig': r.titel, 'Right3': r.titel.slice(-3) })); 
+                            renderTable(); 
+                        }, 
+                        query: "SELECT titel, RIGHT(titel, 3) FROM filme;" 
+                    },
+                    { 
+                        label: "🧩 Teil (SUBSTRING)", 
+                        action: () => { 
+                            currentColumns = ['titel', 'Sub(2,4)'];
+                            currentData = rawData.map(r => ({ 'titel': r.titel, 'Sub(2,4)': r.titel.substring(1, 5) })); 
+                            renderTable(); 
+                        }, 
+                        query: "SELECT titel, SUBSTRING(titel, 2, 4) FROM filme;" 
+                    },
+                    { 
+                        label: "🔍 Position (INSTR)", 
+                        action: () => { 
+                            currentColumns = ['titel', 'Pos "The"'];
+                            currentData = rawData.map(r => ({ 'titel': r.titel, 'Pos "The"': r.titel.indexOf('The') + 1 })); 
+                            renderTable(); 
+                        }, 
+                        query: "SELECT titel, INSTR(titel, 'The') FROM filme;" 
+                    },
+                    { 
+                        label: "🔎 Muster (LIKE)", 
+                        action: () => { 
+                            filterData(r => r.titel.includes('King'));
+                        }, 
+                        query: "SELECT * FROM filme WHERE titel LIKE '%King%';" 
+                    },
+                    { 
+                        label: "✏️ Ersetzen (REPLACE)", 
+                        action: () => { 
+                            currentColumns = ['titel', 'alt', 'neu'];
+                            currentData = rawData.filter(r => r.genre === 'Action').map(r => ({ 
+                                'titel': r.titel, 
+                                'alt': r.genre, 
+                                'neu': r.genre.replaceAll('Action', 'Drama') 
+                            })); 
+                            renderTable(); 
+                        }, 
+                        query: "SELECT titel, genre AS alt, REPLACE(genre, 'Action', 'Drama') AS neu FROM filme WHERE genre='Action';" 
+                    }
+                ]
+            },
             'summary': {
                 title: "Zusammenfassung & Quiz",
                 content: `
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">Die Goldene Reihenfolge</h3>
-                    <p class="text-gray-600 mb-6">
+                    <h3 class="text-xl font-bold mb-4">Die Goldene Reihenfolge</h3>
+                    <p class="mb-6">
                         SQL verzeiht keine Fehler in der Reihenfolge. Du musst dich strikt an diesen Aufbau halten.
                     </p>
 
-                    <div class="bg-white p-4 rounded-lg border-l-4 border-yellow-500 shadow-sm mb-6">
-                        <h4 class="font-bold text-gray-800 mb-1">Hinweis zu AND/OR</h4>
-                        <p class="text-sm text-gray-600">
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-[var(--color-secondary)] shadow-sm mb-6">
+                        <h4 class="font-bold mb-1">Hinweis zu AND/OR</h4>
+                        <p class="text-sm">
                             <code>AND</code> (und <code>OR</code>) gehört in die <code>WHERE</code>-Bedingung.
                             Es ist kein eigener "Block" wie <code>ORDER BY</code> oder <code>LIMIT</code>.
                         </p>
                     </div>
                     
-                    <div id="order-game-container" class="bg-white p-6 rounded-lg border border-gray-200 shadow-md">
-                        <h4 class="font-bold text-gray-700 mb-3">Quiz: Bringe die Befehle in die richtige Reihenfolge!</h4>
-                        <p class="text-xs text-gray-500 mb-4">Klicke die Buttons in der korrekten logischen Abfolge an.</p>
+                    <div id="order-game-container" class="bg-white p-6 rounded-lg border-2 border-[var(--color-primary)] shadow-md">
+                        <h4 class="font-bold text-lg mb-3">Quiz: Bringe die Befehle in die richtige Reihenfolge!</h4>
+                        <p class="text-sm mb-4">Klicke die Buttons in der korrekten logischen Abfolge an.</p>
                         
                         <div id="game-buttons" class="flex flex-wrap gap-2 mb-4">
-                            <button onclick="gameClick('WHERE')" class="game-btn px-4 py-2 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition">WHERE</button>
-                            <button onclick="gameClick('LIMIT')" class="game-btn px-4 py-2 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition">LIMIT</button>
-                            <button onclick="gameClick('SELECT')" class="game-btn px-4 py-2 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition">SELECT</button>
-                            <button onclick="gameClick('DISTINCT')" class="game-btn px-4 py-2 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition">DISTINCT</button>
-                            <button onclick="gameClick('ORDER BY')" class="game-btn px-4 py-2 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition">ORDER BY</button>
-                            <button onclick="gameClick('FROM')" class="game-btn px-4 py-2 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition">FROM</button>
+                            <button onclick="gameClick('WHERE')" class="game-btn px-4 py-2 border-2 border-[var(--color-primary)] text-[var(--color-primary)] rounded hover:bg-[var(--color-secondary)] transition font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:shadow-none translate-y-0 active:translate-y-[2px]">WHERE</button>
+                            <button onclick="gameClick('LIMIT')" class="game-btn px-4 py-2 border-2 border-[var(--color-primary)] text-[var(--color-primary)] rounded hover:bg-[var(--color-secondary)] transition font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:shadow-none translate-y-0 active:translate-y-[2px]">LIMIT</button>
+                            <button onclick="gameClick('SELECT')" class="game-btn px-4 py-2 border-2 border-[var(--color-primary)] text-[var(--color-primary)] rounded hover:bg-[var(--color-secondary)] transition font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:shadow-none translate-y-0 active:translate-y-[2px]">SELECT</button>
+                            <button onclick="gameClick('DISTINCT')" class="game-btn px-4 py-2 border-2 border-[var(--color-primary)] text-[var(--color-primary)] rounded hover:bg-[var(--color-secondary)] transition font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:shadow-none translate-y-0 active:translate-y-[2px]">DISTINCT</button>
+                            <button onclick="gameClick('ORDER BY')" class="game-btn px-4 py-2 border-2 border-[var(--color-primary)] text-[var(--color-primary)] rounded hover:bg-[var(--color-secondary)] transition font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:shadow-none translate-y-0 active:translate-y-[2px]">ORDER BY</button>
+                            <button onclick="gameClick('FROM')" class="game-btn px-4 py-2 border-2 border-[var(--color-primary)] text-[var(--color-primary)] rounded hover:bg-[var(--color-secondary)] transition font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:shadow-none translate-y-0 active:translate-y-[2px]">FROM</button>
                         </div>
 
-                        <div id="game-result" class="min-h-[40px] p-2 bg-gray-50 rounded border border-gray-100 flex items-center gap-2 font-mono text-sm">
+                        <div id="game-result" class="min-h-[40px] p-2 bg-gray-50 rounded border border-gray-200 flex items-center gap-2 font-mono text-sm">
                             <span class="text-gray-400">Dein Query:</span>
-                            <span id="game-output" class="font-bold text-gray-800"></span>
+                            <span id="game-output" class="font-bold"></span>
                         </div>
                         <div id="game-message" class="mt-2 text-sm font-bold min-h-[20px]"></div>
-                        <button onclick="resetGame()" class="mt-4 text-xs text-gray-500 underline">Reset Quiz</button>
+                        <button onclick="resetGame()" class="mt-4 text-xs text-gray-500 underline hover:text-[var(--color-primary)]">Reset Quiz</button>
                     </div>
                 `,
                 controls: [
@@ -493,6 +829,38 @@
             menu.classList.toggle('hidden');
         }
 
+        function switchMobileTab(tab) {
+            const contentArea = document.getElementById('content-area');
+            const simArea = document.getElementById('simulation-area');
+            // Buttons
+            const btnContent = document.getElementById('tab-content');
+            const btnSim = document.getElementById('tab-simulation');
+
+            if (tab === 'content') {
+                contentArea.classList.remove('hidden');
+                simArea.classList.add('hidden'); // This hides it on MOBILE. On Desktop, md:flex OVERRIDES this due to higher specificity of breakpoints.
+                simArea.classList.remove('flex'); // Remove flex so it doesn't interfere, though hidden should win? No, hidden wins over regular flex.
+                
+                // Style Updates
+                btnContent.classList.remove('text-gray-400', 'border-transparent');
+                btnContent.classList.add('text-[var(--color-primary)]', 'bg-gray-50', 'border-t-4', 'border-[var(--color-secondary)]');
+                
+                btnSim.classList.add('text-gray-400');
+                btnSim.classList.remove('text-[var(--color-primary)]', 'bg-gray-50', 'border-t-4', 'border-[var(--color-secondary)]');
+            } else {
+                contentArea.classList.add('hidden'); // This hides it on MOBILE. On Desktop, md:block overrides this.
+                simArea.classList.remove('hidden');
+                simArea.classList.add('flex'); // Essential for mobile layout to work (flex-col relies on flex container)
+                
+                // Style Updates
+                btnSim.classList.remove('text-gray-400', 'border-transparent');
+                btnSim.classList.add('text-[var(--color-primary)]', 'bg-gray-50', 'border-t-4', 'border-[var(--color-secondary)]');
+                
+                btnContent.classList.add('text-gray-400');
+                btnContent.classList.remove('text-[var(--color-primary)]', 'bg-gray-50', 'border-t-4', 'border-[var(--color-secondary)]');
+            }
+        }
+
         function navigateTo(sectionId) {
             currentSection = sectionId;
             
@@ -505,23 +873,62 @@
             const contentArea = document.getElementById('content-area');
             const data = sections[sectionId];
             
+            // Render content first
             contentArea.innerHTML = `
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">${data.title}</h2>
-                <div class="prose max-w-none">
+                <h2 style="color: var(--color-primary)" class="text-3xl font-bold mb-6 border-b-4 border-[var(--color-secondary)] pb-2 inline-block">${data.title}</h2>
+                <div class="prose max-w-none text-base leading-relaxed">
                     ${data.content}
                 </div>
             `;
+            
+            // Apply Syntax Highlighting to prose content
+            // We find all <code> blocks and assume they are SQL for this guide
+            contentArea.querySelectorAll('code').forEach(block => {
+                // Skip highlighting if the code block contains a link (to preserve the anchor tag)
+                if (block.querySelector('a')) {
+                    block.classList.add('language-sql'); // Still add class for basic styling
+                    return; 
+                }
+
+                block.classList.add('language-sql');
+                try {
+                    Prism.highlightElement(block);
+                } catch (e) { console.warn("Prism highlight failed", e); }
+            });
 
             // Update Controls
             const controlsArea = document.getElementById('dynamic-controls');
             controlsArea.innerHTML = '';
-            data.controls.forEach(ctrl => {
+            
+            data.controls.forEach((ctrl, idx) => {
                 const btn = document.createElement('button');
-                btn.className = "px-3 py-2 bg-white border border-gray-300 text-gray-700 text-xs rounded hover:bg-gray-50 hover:border-gray-400 transition shadow-sm font-medium";
-                btn.innerText = ctrl.label;
+                // Base: White bg, Black text, Black border, Brutalist shadow
+                // Active/Focus: Black bg, White text, moved down
+                btn.className = `
+                    control-btn group relative px-4 py-2 border-2 border-[var(--color-primary)] 
+                    text-[var(--color-primary)] bg-white text-sm rounded font-bold 
+                    shadow-[3px_3px_0_0_var(--color-primary)] transition-all 
+                    hover:bg-[var(--color-secondary)] hover:shadow-[3px_3px_0_0_var(--color-primary)]
+                    active:shadow-none active:translate-x-[3px] active:translate-y-[3px]
+                `;
+                
+                btn.innerText = ctrl.label; 
+                
                 btn.onclick = () => {
-                    // Update Query Display
-                    document.getElementById('query-display').innerText = ctrl.query;
+                    // Remove active state from all buttons
+                    document.querySelectorAll('.control-btn').forEach(b => {
+                        b.classList.remove('bg-[var(--color-primary)]', 'text-white', 'shadow-none', 'translate-x-[3px]', 'translate-y-[3px]');
+                        b.classList.add('bg-white', 'text-[var(--color-primary)]', 'shadow-[3px_3px_0_0_var(--color-primary)]');
+                    });
+
+                    // Add active state to clicked button
+                    btn.classList.remove('bg-white', 'text-[var(--color-primary)]', 'shadow-[3px_3px_0_0_var(--color-primary)]', 'hover:bg-[var(--color-secondary)]');
+                    // Force the "pressed" look permanently for the active filter
+                    btn.classList.add('bg-[var(--color-primary)]', 'text-white', 'shadow-none', 'translate-x-[3px]', 'translate-y-[3px]');
+
+                    const highlightedQuery = Prism.highlight(ctrl.query, Prism.languages.sql, 'sql');
+                    document.getElementById('query-display').innerHTML = highlightedQuery;
+                    
                     // Execute Action
                     ctrl.action();
                 };
@@ -529,17 +936,16 @@
             });
 
             // Reset simulation data on section change to avoid confusion (except limit which builds on sort)
-            // But we might want persistence. Let's keep persistence but if it's confusing, user can reset.
-            // Actually, resetting per section is cleaner for tutorials.
             resetData();
             // Trigger the first control action as default visual? No, let user explore.
-            document.getElementById('query-display').innerText = "Bereit...";
+            document.getElementById('query-display').innerHTML = "Bereit...";
 
             // Some sections benefit from an immediate, visible default state.
             if (sectionId === 'datetime') {
                 const firstCtrl = sections[sectionId]?.controls?.[0];
                 if (firstCtrl) {
-                    document.getElementById('query-display').innerText = firstCtrl.query;
+                    const highlightedQuery = Prism.highlight(firstCtrl.query, Prism.languages.sql, 'sql');
+                    document.getElementById('query-display').innerHTML = highlightedQuery;
                     firstCtrl.action();
                 }
             }
@@ -560,18 +966,24 @@
             // Headers
             currentColumns.forEach(col => {
                 const th = document.createElement('th');
-                th.className = "px-4 py-3";
-                th.innerText = col;
+                th.className = "px-6 py-4 font-bold text-xs tracking-wider border-b-2 border-[var(--color-primary)] text-left";
+                th.innerText = col.toUpperCase();
                 thead.appendChild(th);
             });
 
             // Body
             currentData.forEach(row => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50 transition-colors";
+                tr.className = "hover:bg-[var(--color-secondary)] hover:bg-opacity-20 transition-colors border-b border-gray-200 last:border-0";
+
                 currentColumns.forEach(col => {
                     const td = document.createElement('td');
-                    td.className = "px-4 py-3 text-gray-600";
+                    td.className = "px-6 py-3 text-[var(--color-primary)] font-medium border-l border-transparent text-sm";
+                    
+                    if (typeof row[col] === 'number') {
+                         td.classList.add('font-mono', 'text-[var(--color-primary)]', 'font-bold');
+                    }
+                    
                     td.innerText = row[col];
                     tr.appendChild(td);
                 });
@@ -585,7 +997,8 @@
             currentData = [...rawData];
             currentColumns = ['titel', 'jahr', 'genre', 'rating'];
             renderTable();
-            document.getElementById('query-display').innerText = "SELECT * FROM filme;";
+            const highlightedQuery = Prism.highlight("SELECT * FROM filme;", Prism.languages.sql, 'sql');
+            document.getElementById('query-display').innerHTML = highlightedQuery;
         }
 
         function setColumns(cols) {
@@ -686,10 +1099,10 @@
 
             if(gameSequence.length === correctSequence.length) {
                 msg.innerText = "✅ Perfekt! Das ist die korrekte SQL Syntax.";
-                msg.className = "mt-2 text-sm font-bold text-green-600";
+                msg.className = "mt-2 text-sm font-bold text-[var(--color-accent)]";
             } else {
                 msg.innerText = "Gut so... weiter...";
-                msg.className = "mt-2 text-sm font-bold text-blue-600";
+                msg.className = "mt-2 text-sm font-bold text-[var(--color-primary)]";
             }
         }
 
