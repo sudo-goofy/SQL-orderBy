@@ -677,13 +677,21 @@
                                 <span class="text-xl">✂️</span> Ausschneiden
                             </h4>
                             <ul class="text-sm grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <li class="flex flex-col">
+                                <li class="flex flex-col col-span-full">
                                     <code class="font-bold text-[var(--color-soft)]">LEFT(str, n) / RIGHT(str, n)</code>
-                                    <span class="text-gray-500 text-xs">Nimmt die ersten/letzten <i>n</i> Zeichen.</span>
+                                    <span class="text-gray-500 text-xs">Gibt die ersten (<code>LEFT</code>) bzw. letzten (<code>RIGHT</code>) <em>n</em> Zeichen eines Strings zurück.</span>
+                                    <ul class="text-gray-500 text-xs mt-1 ml-2 space-y-0.5">
+                                        <li><code class="font-bold text-[var(--color-soft)]">LEFT('Schule', 3)</code> &rarr; <strong>'Sch'</strong></li>
+                                        <li><code class="font-bold text-[var(--color-soft)]">RIGHT('Schule', 4)</code> &rarr; <strong>'hule'</strong></li>
+                                    </ul>
                                 </li>
-                                <li class="flex flex-col">
+                                <li class="flex flex-col col-span-full">
                                     <code class="font-bold text-[var(--color-soft)]">SUBSTRING(str, start, len)</code>
-                                    <span class="text-gray-500 text-xs">Schneidet teil heraus (Start bei 1!).</span>
+                                    <span class="text-gray-500 text-xs">Schneidet einen Teilstring heraus. <em>start</em> ist 1-basiert, <em>len</em> gibt die Länge an (optional – ohne <em>len</em> bis zum Ende).</span>
+                                    <ul class="text-gray-500 text-xs mt-1 ml-2 space-y-0.5">
+                                        <li><code class="font-bold text-[var(--color-soft)]">SUBSTRING('Hallo Welt', 7, 4)</code> &rarr; <strong>'Welt'</strong></li>
+                                        <li><code class="font-bold text-[var(--color-soft)]">SUBSTRING(titel, 1, 5)</code> &rarr; die ersten 5 Zeichen des Titels</li>
+                                    </ul>
                                 </li>
                             </ul>
                         </div>
@@ -694,13 +702,21 @@
                                 <span class="text-xl">🔍</span> Suchen & Finden
                             </h4>
                             <ul class="text-sm grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <li class="flex flex-col">
+                                <li class="flex flex-col col-span-full">
                                     <code class="font-bold text-[var(--color-soft)]">INSTR(str, 'such')</code>
-                                    <span class="text-gray-500 text-xs">Position des Suchworts (0 w. n. gef.).</span>
+                                    <span class="text-gray-500 text-xs">Gibt die Position (1-basiert) des ersten Vorkommens von <em>such</em> in <em>str</em> zurück. Wird der Text nicht gefunden, liefert die Funktion <strong>0</strong>.</span>
+                                    <ul class="text-gray-500 text-xs mt-1 ml-2 space-y-0.5">
+                                        <li><code class="font-bold text-[var(--color-soft)]">INSTR('Hallo', 'l')</code> &rarr; <strong>3</strong> <span class="text-gray-400">(erstes „l" steht an Position 3)</span></li>
+                                        <li><code class="font-bold text-[var(--color-soft)]">INSTR(titel, 'King')</code> &rarr; <strong>0</strong>, wenn „King" nicht im Titel vorkommt</li>
+                                    </ul>
                                 </li>
-                                <li class="flex flex-col">
+                                <li class="flex flex-col col-span-full">
                                     <code class="font-bold text-[var(--color-soft)]">LIKE '%Muster%'</code>
-                                    <span class="text-gray-500 text-xs">Filtert nach Textmustern.</span>
+                                    <span class="text-gray-500 text-xs">Filtert nach Textmustern. Platzhalter:</span>
+                                    <ul class="text-gray-500 text-xs mt-1 ml-2 space-y-0.5">
+                                        <li><code class="font-bold text-[var(--color-soft)]">%</code> &ndash; beliebig viele Zeichen (auch keines). <span class="text-gray-400">z.&nbsp;B. <code>'%King%'</code> findet alles mit „King"</span></li>
+                                        <li><code class="font-bold text-[var(--color-soft)]">_</code> &ndash; genau ein beliebiges Zeichen. <span class="text-gray-400">z.&nbsp;B. <code>'_ing'</code> findet „Ring", „King", …</span></li>
+                                    </ul>
                                 </li>
                             </ul>
                         </div>
@@ -711,20 +727,40 @@
                                 <span class="text-xl">✏️</span> Bearbeiten
                             </h4>
                             <ul class="text-sm grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <li class="flex flex-col">
+                                <li class="flex flex-col col-span-full">
                                     <code class="font-bold text-[var(--color-soft)]">REPLACE(str, 'alt', 'neu')</code>
-                                    <span class="text-gray-500 text-xs">Tauscht Textteile aus.</span>
+                                    <span class="text-gray-500 text-xs">Ersetzt jedes Vorkommen von <em>alt</em> durch <em>neu</em> innerhalb von <em>str</em>. Groß-/Kleinschreibung wird beachtet.</span>
+                                    <ul class="text-gray-500 text-xs mt-1 ml-2 space-y-0.5">
+                                        <li><code class="font-bold text-[var(--color-soft)]">REPLACE('Hallo Welt', 'Welt', 'SQL')</code> &rarr; <strong>'Hallo SQL'</strong></li>
+                                        <li><code class="font-bold text-[var(--color-soft)]">REPLACE(titel, ' ', '_')</code> &rarr; Leerzeichen durch Unterstriche ersetzen</li>
+                                    </ul>
                                 </li>
-                                <li class="flex flex-col">
+                                <li class="flex flex-col col-span-full">
                                     <code class="font-bold text-[var(--color-soft)]">CHAR_LENGTH(str)</code>
-                                    <span class="text-gray-500 text-xs">Zählt die Zeichenanzahl.</span>
+                                    <span class="text-gray-500 text-xs">Gibt die Anzahl der Zeichen in <em>str</em> zurück (Leerzeichen werden mitgezählt). Nützlich z.&nbsp;B. zum Filtern zu langer Eingaben.</span>
+                                    <ul class="text-gray-500 text-xs mt-1 ml-2 space-y-0.5">
+                                        <li><code class="font-bold text-[var(--color-soft)]">CHAR_LENGTH('Hallo')</code> &rarr; <strong>5</strong></li>
+                                        <li><code class="font-bold text-[var(--color-soft)]">WHERE CHAR_LENGTH(titel) &gt; 10</code> &rarr; nur Titel mit mehr als 10 Zeichen</li>
+                                    </ul>
                                 </li>
                             </ul>
                         </div>
                     </div>
 
-                    <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-[var(--color-secondary)] text-sm mb-6">
+                    <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-[var(--color-secondary)] text-sm mb-4">
                         <strong>💡 Tipp:</strong> String-Funktionen sind perfekt, um "schmutzige" Daten zu reinigen, bevor man sie dem Benutzer anzeigt.
+                    </div>
+
+                    <div class="bg-white p-4 rounded border border-gray-200 shadow-sm mb-6">
+                        <h4 class="font-bold text-[var(--color-primary)] mb-3 flex items-center gap-2 border-b border-gray-100 pb-2">
+                            <span class="text-xl">🪆</span> Verschachtelung – Funktionen kombinieren
+                        </h4>
+                        <p class="text-sm text-gray-500 mb-3">String-Funktionen lassen sich ineinander verschachteln. Die innerste Funktion wird zuerst ausgewertet.</p>
+                        <div class="text-sm text-gray-500">
+                            <code class="font-bold text-[var(--color-soft)]">UPPER(TRIM(titel))</code>
+                            <span class="text-gray-400 text-xs ml-1">&rarr; erst Leerzeichen entfernen, dann großschreiben</span>
+                            <div class="text-xs text-gray-400 ml-2 mt-0.5">z.&nbsp;B. <code>'&nbsp;&nbsp;hallo&nbsp;'</code> &rarr; <strong>'HALLO'</strong></div>
+                        </div>
                     </div>
                 `,
                 controls: [
@@ -1181,6 +1217,17 @@
                 ],
                 correct: 2,
                 hint: "Die Funktion <code>YEAR(spalte)</code> extrahiert das Jahr aus einem DATETIME-Wert und erlaubt so einen gezielten Filter."
+            },
+            {
+                q: "Was gibt <code>LEFT(UPPER(TRIM('&nbsp;&nbsp;sky&nbsp;&nbsp;')), 2)</code> zurück?",
+                options: [
+                    "<code>'sk'</code> &nbsp;<em>(Kleinbuchstaben)</em>",
+                    "<code>'SKY'</code> &nbsp;<em>(alle Zeichen)</em>",
+                    "<code>'&nbsp;SK&nbsp;'</code> &nbsp;<em>(mit Leerzeichen)</em>",
+                    "<code>'SK'</code>"
+                ],
+                correct: 3,
+                hint: "Auswertung von innen nach außen: <code>TRIM</code> entfernt die Leerzeichen → <code>'sky'</code>, <code>UPPER</code> schreibt groß → <code>'SKY'</code>, <code>LEFT(..., 2)</code> nimmt die ersten 2 Zeichen → <code>'SK'</code>."
             }
         ];
 
